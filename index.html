@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#161311">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Dusk — Eye Care Companion</title>
+<style>
+  :root{
+    --bg:#161311; --bg2:#1d1917; --card:#211d1a; --card2:#282320;
+    --line:#352e29; --line2:#453c35;
+    --text:#ece3d4; --dim:#a89a87; --faint:#6e6355;
+    --amber:#e2a25c; --amber2:#f0bd82; --sage:#9db89a; --sage2:#b9d1b6;
+    --rose:#cf8d7e; --blue:#8fa9bd;
+    --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,'Times New Roman',serif;
+    --sans:'Avenir Next','Segoe UI',Seravek,Candara,Calibri,sans-serif;
+    --r:22px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{height:100%}
+  body{
+    font-family:var(--sans); background:var(--bg); color:var(--text);
+    min-height:100%; line-height:1.5; font-size:16px;
+    background-image:
+      radial-gradient(1200px 600px at 80% -10%, rgba(226,162,92,.07), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(157,184,154,.05), transparent 60%);
+    background-attachment:fixed;
+  }
+  #app{max-width:520px;margin:0 auto;padding:22px 18px calc(96px + env(safe-area-inset-bottom));min-height:100vh}
+  h1,h2,h3,.serif{font-family:var(--serif);font-weight:600;letter-spacing:.2px}
+  button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer;font-size:inherit}
+  .hidden{display:none!important}
+
+  /* ---------- header ---------- */
+  header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px}
+  header h1{font-size:26px;color:var(--amber2)}
+  header h1 span{color:var(--faint);font-size:15px;font-style:italic;margin-left:8px}
+  #clock{font-size:14px;color:var(--faint);font-variant-numeric:tabular-nums}
+
+  /* ---------- cards ---------- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:14px}
+
+  /* ---------- streak hero ---------- */
+  .hero{display:flex;gap:18px;align-items:center}
+  .flame{
+    width:74px;height:74px;border-radius:50%;flex:none;
+    display:flex;align-items:center;justify-content:center;font-size:34px;
+    background:radial-gradient(circle at 50% 65%, rgba(226,162,92,.22), rgba(226,162,92,.05) 70%);
+    border:1px solid rgba(226,162,92,.35);
+  }
+  .hero .big{font-family:var(--serif);font-size:34px;color:var(--amber2);line-height:1.1}
+  .hero .sub{color:var(--dim);font-size:14px}
+  .hero .sub b{color:var(--sage2);font-weight:600}
+
+  /* ---------- reminder banner ---------- */
+  .reminder{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--dim)}
+  .reminder .dot{width:9px;height:9px;border-radius:50%;background:var(--sage);flex:none;animation:pulse 2.4s ease-in-out infinite}
+  .reminder.due .dot{background:var(--amber)}
+  .reminder.due{color:var(--amber2)}
+  @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+  .reminder b{font-variant-numeric:tabular-nums}
+
+  /* ---------- start button ---------- */
+  .start-btn{
+    display:block;width:100%;padding:18px;border-radius:var(--r);
+    background:linear-gradient(160deg,#8a5f30,#6e4a24);
+    border:1px solid #a5713a; color:#fdf2e0;
+    font-family:var(--serif);font-size:20px;letter-spacing:.3px;
+    box-shadow:0 6px 24px rgba(226,162,92,.15), inset 0 1px 0 rgba(255,255,255,.12);
+    transition:transform .15s ease, box-shadow .2s;
+    margin-bottom:14px;
+  }
+  .start-btn:active{transform:scale(.98)}
+  .start-btn small{display:block;font-family:var(--sans);font-size:12.5px;color:#e8cba2;margin-top:3px;letter-spacing:.2px}
+
+  /* ---------- exercise list ---------- */
+  .ex-row{display:flex;align-items:center;gap:14px;padding:13px 4px;border-bottom:1px solid var(--line)}
+  .ex-row:last-child{border-bottom:none}
+  .ex-icon{width:42px;height:42px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--card2);border:1px solid var(--line2)}
+  .ex-row .name{font-size:15.5px;font-weight:600}
+  .ex-row .why{font-size:12.5px;color:var(--dim)}
+  .ex-row .done-mark{margin-left:auto;color:var(--sage);font-size:18px;flex:none}
+  .ex-row .play{margin-left:auto;color:var(--faint);font-size:13px;border:1px solid var(--line2);border-radius:999px;padding:5px 12px;flex:none}
+  .ex-row .play:active{color:var(--amber2);border-color:var(--amber)}
+  .section-label{font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--faint);margin:20px 4px 10px}
+
+  /* ---------- hours ribbon ---------- */
+  .hours{display:flex;gap:5px;margin-top:12px}
+  .hours .h{flex:1;height:26px;border-radius:7px;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--faint)}
+  .hours .h.done{background:rgba(157,184,154,.18);border-color:rgba(157,184,154,.45);color:var(--sage2)}
+  .hours .h.now{outline:1.5px solid var(--amber);outline-offset:1px}
+
+  /* ---------- player ---------- */
+  #player{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;flex-direction:column;align-items:center;padding:20px 22px calc(24px + env(safe-area-inset-bottom));overflow-y:auto}
+  #player .top{width:100%;max-width:520px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  #player .top .ex-count{color:var(--faint);font-size:13.5px;letter-spacing:1px}
+  #player .top .close{font-size:15px;color:var(--dim);padding:8px 14px;border:1px solid var(--line2);border-radius:999px}
+  #ex-title{font-family:var(--serif);font-size:27px;color:var(--amber2);text-align:center;margin-top:10px}
+  #ex-tag{color:var(--dim);font-size:13.5px;text-align:center;margin-top:2px;font-style:italic}
+
+  .stage{position:relative;width:min(300px,72vw);height:min(300px,72vw);margin:26px 0 10px;flex:none}
+  .stage svg.ring{position:absolute;inset:0;transform:rotate(-90deg)}
+  .stage .ring-bg{fill:none;stroke:var(--line);stroke-width:5}
+  .stage .ring-fg{fill:none;stroke:var(--amber);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .95s linear, stroke .4s}
+  .visual{position:absolute;inset:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;
+    background:radial-gradient(circle at 50% 40%, var(--card2), var(--bg2));border:1px solid var(--line)}
+
+  /* eye visual */
+  .eye{width:64%;height:auto}
+  .eye .lid{transition:d .5s;}
+  /* orb for focus / palming / gaze */
+  .orb{width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 30%, var(--amber2), #8a5f30);box-shadow:0 0 28px rgba(226,162,92,.5);transition:transform 2.8s cubic-bezier(.45,0,.55,1), width .5s, height .5s}
+  .orb.small{width:18px;height:18px}
+  .breath{width:52%;height:52%;border-radius:50%;background:radial-gradient(circle, rgba(157,184,154,.35), rgba(157,184,154,.06) 70%);border:1px solid rgba(157,184,154,.35);animation:breathe 6s ease-in-out infinite}
+  @keyframes breathe{0%,100%{transform:scale(.72)}50%{transform:scale(1.15)}}
+
+  #phase-word{font-family:var(--serif);font-size:30px;min-height:44px;color:var(--text);text-align:center;transition:opacity .3s}
+  #phase-count{font-size:15px;color:var(--faint);font-variant-numeric:tabular-nums;margin-top:2px;min-height:22px;text-align:center}
+  #instruction{max-width:420px;text-align:center;color:var(--dim);font-size:14.5px;margin-top:14px;min-height:44px}
+
+  #player .controls{display:flex;gap:12px;margin-top:20px}
+  .ctl{padding:13px 26px;border-radius:999px;border:1px solid var(--line2);color:var(--dim);font-size:15px}
+  .ctl.primary{background:linear-gradient(160deg,#8a5f30,#6e4a24);border-color:#a5713a;color:#fdf2e0;font-family:var(--serif);font-size:17px}
+  .ctl:active{transform:scale(.97)}
+
+  /* get-ready overlay text */
+  .ready-steps{max-width:400px;color:var(--dim);font-size:15px;margin-top:14px}
+  .ready-steps li{margin:8px 0 8px 20px}
+
+  /* ---------- completion ---------- */
+  #celebrate{text-align:center;padding:40px 20px}
+  #celebrate .emoji{font-size:56px}
+  #celebrate h2{font-size:28px;color:var(--sage2);margin:12px 0 6px}
+  #celebrate p{color:var(--dim)}
+
+  /* ---------- calendar ---------- */
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+  .cal .d{aspect-ratio:1;border-radius:10px;background:var(--card2);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--faint)}
+  .cal .d .n{font-size:13px;color:var(--dim)}
+  .cal .d.lvl1{background:rgba(157,184,154,.12);border-color:rgba(157,184,154,.3)}
+  .cal .d.lvl2{background:rgba(157,184,154,.22);border-color:rgba(157,184,154,.45)}
+  .cal .d.lvl3{background:rgba(157,184,154,.35);border-color:rgba(157,184,154,.65)}
+  .cal .d.lvl1 .n,.cal .d.lvl2 .n,.cal .d.lvl3 .n{color:var(--sage2)}
+  .cal .d.today{outline:1.5px solid var(--amber);outline-offset:1px}
+  .cal-head{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px}
+  .cal-head span{text-align:center;font-size:10.5px;color:var(--faint);letter-spacing:1px}
+  .stat-row{display:flex;gap:12px;margin-top:4px}
+  .stat{flex:1;text-align:center;padding:14px 8px;background:var(--card2);border:1px solid var(--line);border-radius:16px}
+  .stat .v{font-family:var(--serif);font-size:24px;color:var(--amber2)}
+  .stat .k{font-size:11.5px;color:var(--faint);letter-spacing:.5px;margin-top:2px}
+
+  /* ---------- settings ---------- */
+  .set-row{display:flex;align-items:center;justify-content:space-between;padding:14px 2px;border-bottom:1px solid var(--line);gap:12px}
+  .set-row:last-child{border-bottom:none}
+  .set-row .lbl{font-size:15px}
+  .set-row .hint{font-size:12.5px;color:var(--faint)}
+  .toggle{width:52px;height:30px;border-radius:999px;background:var(--card2);border:1px solid var(--line2);position:relative;transition:.25s;flex:none}
+  .toggle::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--faint);transition:.25s}
+  .toggle.on{background:rgba(157,184,154,.3);border-color:var(--sage)}
+  .toggle.on::after{left:25px;background:var(--sage2)}
+  select{background:var(--card2);color:var(--text);border:1px solid var(--line2);border-radius:10px;padding:7px 10px;font-size:14px}
+  .pill-btn{border:1px solid var(--line2);border-radius:999px;padding:9px 18px;color:var(--dim);font-size:14px}
+  .pill-btn:active{color:var(--amber2);border-color:var(--amber)}
+  .note{font-size:12.5px;color:var(--faint);line-height:1.55;margin-top:12px}
+  .note a{color:var(--blue)}
+
+  /* ---------- tabs ---------- */
+  nav{position:fixed;bottom:0;left:0;right:0;z-index:40;display:flex;justify-content:center;gap:6px;
+    padding:10px 16px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(transparent, rgba(22,19,17,.88) 30%);backdrop-filter:blur(10px)}
+  nav button{flex:1;max-width:160px;padding:11px 6px;border-radius:16px;color:var(--faint);font-size:12.5px;display:flex;flex-direction:column;align-items:center;gap:3px}
+  nav button .ico{font-size:20px}
+  nav button.active{color:var(--amber2);background:rgba(226,162,92,.09)}
+
+  /* nudge popup */
+  #nudge{position:fixed;inset:0;z-index:55;display:flex;align-items:center;justify-content:center;background:rgba(12,10,9,.6);backdrop-filter:blur(4px)}
+  #nudge .box{background:var(--card);border:1px solid var(--line2);border-radius:var(--r);padding:30px 26px;max-width:340px;width:calc(100% - 48px);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:nudge-in .35s cubic-bezier(.2,.9,.3,1.2)}
+  @keyframes nudge-in{from{opacity:0;transform:scale(.9) translateY(14px)}to{opacity:1;transform:none}}
+  #nudge .eye-emoji{font-size:44px;animation:pulse 2.4s ease-in-out infinite}
+  #nudge h2{font-size:23px;color:var(--amber2);margin:10px 0 6px}
+  #nudge p{color:var(--dim);font-size:14.5px;line-height:1.55}
+  #nudge .controls{display:flex;gap:10px;margin-top:22px;justify-content:center}
+
+  /* toast */
+  #toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--line2);color:var(--text);padding:11px 20px;border-radius:999px;font-size:14px;opacity:0;transition:.3s;z-index:60;pointer-events:none;white-space:nowrap}
+  #toast.show{opacity:1;transform:translateX(-50%)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Dusk <span>eye care</span></h1>
+    <div id="clock"></div>
+  </header>
+
+  <!-- ============ HOME ============ -->
+  <div id="view-home">
+    <div class="card hero">
+      <div class="flame" id="flame">🔥</div>
+      <div>
+        <div class="big"><span id="streak-n">0</span> day streak</div>
+        <div class="sub" id="today-sub">No sessions yet today</div>
+      </div>
+    </div>
+
+    <div class="card reminder" id="reminder-card">
+      <div class="dot"></div>
+      <div id="reminder-text">Hourly reminders are off — enable in Settings</div>
+    </div>
+
+    <button class="start-btn" onclick="startRoutine()">
+      Begin eye break
+      <small>5 guided exercises · about 5 minutes</small>
+    </button>
+
+    <div class="section-label">Today, hour by hour</div>
+    <div class="card" style="padding:16px">
+      <div class="hours" id="hours"></div>
+      <div class="note" style="margin-top:10px">Aim for one break each working hour. Green = a break completed in that hour.</div>
+    </div>
+
+    <div class="section-label">The five exercises</div>
+    <div class="card" id="ex-list" style="padding:8px 16px"></div>
+
+    <div class="note" style="margin:4px 6px">
+      These exercises complement — never replace — his prescribed dry-eye treatment. With a Schirmer score of 1–3, he should keep using his drops/medication exactly as his ophthalmologist directed, and show this routine to the doctor at the next visit.
+    </div>
+  </div>
+
+  <!-- ============ PROGRESS ============ -->
+  <div id="view-progress" class="hidden">
+    <div class="stat-row">
+      <div class="stat"><div class="v" id="st-streak">0</div><div class="k">day streak</div></div>
+      <div class="stat"><div class="v" id="st-best">0</div><div class="k">best streak</div></div>
+      <div class="stat"><div class="v" id="st-total">0</div><div class="k">total breaks</div></div>
+    </div>
+    <div class="section-label" id="cal-month"></div>
+    <div class="card" style="padding:16px">
+      <div class="cal-head"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+      <div class="cal" id="cal"></div>
+      <div class="note">Shade deepens with more breaks in a day. 4+ breaks = deepest green.</div>
+    </div>
+  </div>
+
+  <!-- ============ SETTINGS ============ -->
+  <div id="view-settings" class="hidden">
+    <div class="section-label">Reminders</div>
+    <div class="card">
+      <div class="set-row">
+        <div><div class="lbl">Hourly reminders</div><div class="hint">Nudge every hour while the app is open</div></div>
+        <button class="toggle" id="tg-remind" onclick="toggleSetting('remind',this)"></button>
+      </div>
+      <div class="set-row">
+        <div><div class="lbl">System notifications</div><div class="hint">Also notify when app is in background tab</div></div>
+        <button class="toggle" id="tg-notify" onclick="toggleNotify(this)"></button>
+      </div>
+      <div class="set-row">
+        <div class="lbl">Working hours</div>
+        <div>
+          <select id="wh-start" onchange="saveWorkHours()"></select>
+          <span style="color:var(--faint)">to</span>
+          <select id="wh-end" onchange="saveWorkHours()"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Guidance</div>
+    <div class="card">
+      <div class="set-row">
+        <div><div class="lbl">Sound cues</div><div class="hint">Gentle chime on each phase change</div></div>
+        <button class="toggle" id="tg-sound" onclick="toggleSetting('sound',this)"></button>
+      </div>
+      <div class="set-row">
+        <div><div class="lbl">Voice guidance</div><div class="hint">Spoken steps — helpful when eyes are closed</div></div>
+        <button class="toggle" id="tg-voice" onclick="toggleSetting('voice',this)"></button>
+      </div>
+    </div>
+
+    <div class="section-label">Your data (stays on this device)</div>
+    <div class="card">
+      <div class="set-row">
+        <div><div class="lbl">Export progress</div><div class="hint">Save a backup file to move to another device</div></div>
+        <button class="pill-btn" onclick="exportData()">Export</button>
+      </div>
+      <div class="set-row">
+        <div><div class="lbl">Import progress</div><div class="hint">Merge a backup from your other device</div></div>
+        <button class="pill-btn" onclick="document.getElementById('import-file').click()">Import</button>
+        <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(this)">
+      </div>
+    </div>
+
+    <div class="note" style="margin:4px 6px">
+      All data lives in this browser only — nothing is sent anywhere. To keep phone and PC in sync, export from one device and import on the other now and then (imports merge, they never overwrite).
+      <br><br><b>Evidence base:</b> blink training per Contact Lens &amp; Anterior Eye (2020, 2025) clinical studies; 20-20-20 breaks per AOA/AAO guidance; palming/rest and near–far focus per standard optometric practice for asthenopia; smooth convergence per home-based convergence exercise studies. This is general wellness support, not medical treatment.
+    </div>
+  </div>
+</div>
+
+<!-- ============ PLAYER ============ -->
+<div id="player" class="hidden">
+  <div class="top">
+    <div class="ex-count" id="ex-count">1 of 5</div>
+    <button class="close" onclick="closePlayer()">End break</button>
+  </div>
+  <h2 id="ex-title"></h2>
+  <div id="ex-tag"></div>
+
+  <div id="ready" class="hidden" style="text-align:center">
+    <ul class="ready-steps" id="ready-steps"></ul>
+    <div class="controls" style="justify-content:center">
+      <button class="ctl primary" onclick="beginExercise()">I'm ready — start</button>
+      <button class="ctl" onclick="skipExercise()">Skip</button>
+    </div>
+  </div>
+
+  <div id="running" class="hidden" style="display:flex;flex-direction:column;align-items:center">
+    <div class="stage">
+      <svg class="ring" viewBox="0 0 100 100">
+        <circle class="ring-bg" cx="50" cy="50" r="46"/>
+        <circle class="ring-fg" id="ring" cx="50" cy="50" r="46"/>
+      </svg>
+      <div class="visual" id="visual"></div>
+    </div>
+    <div id="phase-word"></div>
+    <div id="phase-count"></div>
+    <div id="instruction"></div>
+    <div class="controls">
+      <button class="ctl" id="pause-btn" onclick="togglePause()">Pause</button>
+      <button class="ctl" onclick="skipExercise()">Skip</button>
+    </div>
+  </div>
+
+  <div id="celebrate" class="hidden">
+    <div class="emoji">🌿</div>
+    <h2>Break complete</h2>
+    <p id="celebrate-sub"></p>
+    <div class="controls" style="justify-content:center;margin-top:26px">
+      <button class="ctl primary" onclick="closePlayer()">Back to work</button>
+    </div>
+  </div>
+</div>
+
+<nav>
+  <button id="tab-home" class="active" onclick="showView('home')"><span class="ico">☀️</span>Today</button>
+  <button id="tab-progress" onclick="showView('progress')"><span class="ico">🌱</span>Progress</button>
+  <button id="tab-settings" onclick="showView('settings')"><span class="ico">⚙️</span>Settings</button>
+</nav>
+
+<div id="nudge" class="hidden">
+  <div class="box">
+    <div class="eye-emoji">👁️</div>
+    <h2>Your eyes need a moment</h2>
+    <p>It's been a couple of hours. A five-minute break now will keep them comfortable for the rest of the day.</p>
+    <div class="controls">
+      <button class="ctl primary" onclick="nudgeStart()">Begin eye break</button>
+      <button class="ctl" onclick="dismissNudge()">Later</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* =================================================================
+   Dusk — local eye-care companion.
+   Everything stored in localStorage; no network calls anywhere.
+   ================================================================= */
+
+/* ---------- exercise definitions ----------
+   Each exercise ≈ 60s, built from timed phases.
+   visual: 'eye' | 'orb-near-far' | 'orb-converge' | 'breath' | 'gaze'  */
+const EXERCISES = [
+  {
+    id:'blink', icon:'👁️', name:'Blink Reset',
+    tag:'For dry eyes — restores the tear film',
+    why:'Clinically studied close–squeeze–open blink cycles',
+    ready:[
+      'Sit comfortably and lower your shoulders.',
+      'You will close your eyes gently for 2 seconds, squeeze the lids for 2 seconds, then open for 2 seconds.',
+      'Squeeze softly — cheeks relaxed, no frowning. 10 rounds.'
+    ],
+    visual:'eye',
+    build(){ // 10 × (close 2, squeeze 2, open 2) = 60s
+      const p=[];
+      for(let i=1;i<=10;i++){
+        p.push({t:2,word:'Close',say:'Close',eye:'closed',count:`round ${i} of 10`});
+        p.push({t:2,word:'Squeeze',say:'Squeeze',eye:'squeeze',count:`round ${i} of 10`});
+        p.push({t:2,word:'Open',say:'Open',eye:'open',count:`round ${i} of 10`});
+      }
+      return p;
+    },
+    instruction:'Close softly · squeeze gently · open wide. Let each blink spread fresh tears across the eye.'
+  },
+  {
+    id:'distance', icon:'🏔️', name:'Far Gaze 20·20',
+    tag:'The 20-20-20 rule — releases focusing strain',
+    why:'AOA / AAO-endorsed distance-viewing break',
+    ready:[
+      'Turn away from the screen. Find something at least 20 feet (6 m) away — out a window is ideal.',
+      'Rest your gaze on it. Don\'t stare hard; blink normally and often.',
+      'Three slow rounds of 20 seconds.'
+    ],
+    visual:'gaze',
+    build(){
+      const p=[];
+      for(let i=1;i<=3;i++){
+        p.push({t:20,word:'Gaze far away',say:'Look far away, and keep blinking',count:`round ${i} of 3`});
+      }
+      return p;
+    },
+    instruction:'Pick the farthest thing you can see. Let the eyes soften — distance is rest for the focusing muscle.'
+  },
+  {
+    id:'nearfar', icon:'🔭', name:'Near–Far Focus',
+    tag:'For tired eyes — trains flexible focusing',
+    why:'Accommodative facility drill for eye strain',
+    ready:[
+      'Hold your thumb about 25 cm (10 in) from your nose.',
+      'Choose a clear object 3+ metres away, roughly behind your thumb.',
+      'You will switch focus between thumb and far object — hold each until it turns sharp.'
+    ],
+    visual:'orb-near-far',
+    build(){ // 10 × (near 3, far 3) = 60s
+      const p=[];
+      for(let i=1;i<=10;i++){
+        p.push({t:3,word:'Focus near',say:'Near',orb:'near',count:`switch ${i} of 10`});
+        p.push({t:3,word:'Focus far',say:'Far',orb:'far',count:`switch ${i} of 10`});
+      }
+      return p;
+    },
+    instruction:'Wait until each target is perfectly sharp before switching. Keep breathing; keep blinking.'
+  },
+  {
+    id:'converge', icon:'🎯', name:'Smooth Convergence',
+    tag:'For the tired-eye squint — steadies eye teaming',
+    why:'Home convergence drill (pencil push-up style)',
+    ready:[
+      'Hold your thumb at arm\'s length at eye level. Keep it single and sharp.',
+      'You will bring it slowly toward your nose over 5 seconds, stopping if it doubles, then move it slowly back out.',
+      '6 slow rounds. If you feel a pulling ache, that muscle is working — but stop if anything hurts.'
+    ],
+    visual:'orb-converge',
+    build(){ // 6 × (in 5, out 5) = 60s
+      const p=[];
+      for(let i=1;i<=6;i++){
+        p.push({t:5,word:'Slowly in…',say:'Bring it slowly in',orb:'in',count:`round ${i} of 6`});
+        p.push({t:5,word:'Slowly out…',say:'And slowly back out',orb:'out',count:`round ${i} of 6`});
+      }
+      return p;
+    },
+    instruction:'Keep the thumb as one image. The moment it doubles, pause there, then ease back out.'
+  },
+  {
+    id:'palming', icon:'🤲', name:'Warm Palming',
+    tag:'Deep rest — darkness and warmth for sore eyes',
+    why:'Classic rest technique; warmth aids the oil glands',
+    ready:[
+      'Rub your palms together for a few seconds until they feel warm.',
+      'Cup them over your closed eyes — no pressure on the eyeballs, just gentle darkness.',
+      'Rest for 60 seconds and breathe slowly. Voice and chimes will tell you when it ends.'
+    ],
+    visual:'breath',
+    build(){
+      return [
+        {t:30,word:'Rest in darkness',say:'Cup your warm palms over closed eyes. Breathe in slowly… and out.',count:'halfway chime will sound'},
+        {t:30,word:'Stay… breathe',say:'Halfway. Stay in the dark and keep breathing slowly.',count:'almost done'}
+      ];
+    },
+    instruction:'Elbows on the desk if that\'s comfortable. Total darkness, slow breath, zero effort.'
+  }
+];
+
+/* ---------- storage ---------- */
+const KEY='dusk-eye-care-v1';
+function load(){
+  try{ return JSON.parse(localStorage.getItem(KEY)) || {} }catch(e){ return {} }
+}
+function save(){ localStorage.setItem(KEY, JSON.stringify(DB)) }
+const DB = Object.assign({
+  sessions:[],            // {d:'2026-07-11', t:epoch, ex:['blink',...]}  one entry per completed break
+  settings:{remind:true, sound:true, voice:true, notify:false, whStart:9, whEnd:18},
+  lastReminderHour:null
+}, load());
+DB.settings = Object.assign({remind:true,sound:true,voice:true,notify:false,whStart:9,whEnd:18}, DB.settings);
+
+const todayStr = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+
+/* ---------- streak math ---------- */
+function daysWithBreaks(){
+  const m={};
+  for(const s of DB.sessions){ m[s.d]=(m[s.d]||0)+1 }
+  return m;
+}
+function calcStreak(){
+  const m=daysWithBreaks();
+  let streak=0;
+  const d=new Date();
+  if(!m[todayStr()]) d.setDate(d.getDate()-1); // today not yet done doesn't break the streak
+  for(;;){
+    const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    if(m[k]){ streak++; d.setDate(d.getDate()-1) } else break;
+  }
+  return streak;
+}
+function calcBest(){
+  const days=Object.keys(daysWithBreaks()).sort();
+  let best=0,run=0,prev=null;
+  for(const k of days){
+    const cur=new Date(k+'T12:00');
+    run = (prev && (cur-prev)===86400000) ? run+1 : 1;
+    best=Math.max(best,run); prev=cur;
+  }
+  return best;
+}
+
+/* ---------- audio ---------- */
+let actx=null;
+function chime(freq=740,dur=.22,gain=.06){
+  if(!DB.settings.sound) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==='suspended') actx.resume();
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type='sine'; o.frequency.value=freq;
+    g.gain.setValueAtTime(gain,actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+dur);
+    o.connect(g); g.connect(actx.destination);
+    o.start(); o.stop(actx.currentTime+dur);
+  }catch(e){}
+}
+function speak(text){
+  if(!DB.settings.voice || !('speechSynthesis' in window)) return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=.95; u.pitch=1; u.volume=.9;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ---------- views ---------- */
+function showView(v){
+  for(const x of ['home','progress','settings']){
+    document.getElementById('view-'+x).classList.toggle('hidden', x!==v);
+    document.getElementById('tab-'+x).classList.toggle('active', x===v);
+  }
+  if(v==='home') renderHome();
+  if(v==='progress') renderProgress();
+  if(v==='settings') renderSettings();
+}
+
+function renderHome(){
+  const streak=calcStreak();
+  document.getElementById('streak-n').textContent=streak;
+  document.getElementById('flame').textContent = streak>=7?'🔥':streak>=3?'✨':streak>=1?'🌱':'🌑';
+  const todayCount=DB.sessions.filter(s=>s.d===todayStr()).length;
+  document.getElementById('today-sub').innerHTML =
+    todayCount ? `<b>${todayCount}</b> break${todayCount>1?'s':''} completed today` : 'No sessions yet today';
+
+  // hour ribbon
+  const {whStart,whEnd}=DB.settings;
+  const hoursDone=new Set(DB.sessions.filter(s=>s.d===todayStr()).map(s=>new Date(s.t).getHours()));
+  const nowH=new Date().getHours();
+  let html='';
+  for(let h=whStart;h<whEnd;h++){
+    html+=`<div class="h ${hoursDone.has(h)?'done':''} ${h===nowH?'now':''}">${h}</div>`;
+  }
+  document.getElementById('hours').innerHTML=html||'<div class="note">Set working hours in Settings</div>';
+
+  // exercise list
+  const doneToday=new Set();
+  DB.sessions.filter(s=>s.d===todayStr()).forEach(s=>(s.ex||[]).forEach(e=>doneToday.add(e)));
+  document.getElementById('ex-list').innerHTML = EXERCISES.map((e,i)=>`
+    <div class="ex-row">
+      <div class="ex-icon">${e.icon}</div>
+      <div><div class="name">${e.name}</div><div class="why">${e.tag}</div></div>
+      ${doneToday.has(e.id)?'<div class="done-mark">✓</div>':`<button class="play" onclick="startRoutine(${i})">1 min</button>`}
+    </div>`).join('');
+
+  renderReminderCard();
+}
+
+function renderReminderCard(){
+  const el=document.getElementById('reminder-card'), txt=document.getElementById('reminder-text');
+  if(!DB.settings.remind){ el.classList.remove('due'); txt.textContent='Hourly reminders are off — enable in Settings'; return }
+  const now=new Date(), h=now.getHours();
+  const inHours = h>=DB.settings.whStart && h<DB.settings.whEnd;
+  const doneThisHour = DB.sessions.some(s=>s.d===todayStr() && new Date(s.t).getHours()===h);
+  if(!inHours){ el.classList.remove('due'); txt.textContent='Outside working hours — reminders resume tomorrow'; }
+  else if(doneThisHour){
+    el.classList.remove('due');
+    const mins=60-now.getMinutes();
+    txt.innerHTML=`This hour is done ✓ — next break in about <b>${mins} min</b>`;
+  } else {
+    el.classList.add('due');
+    txt.textContent='An eye break is due this hour — your eyes will thank you';
+  }
+}
+
+/* ---------- hourly reminder engine ---------- */
+function tickReminder(){
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  if(!DB.settings.remind) return;
+  const now=new Date(), h=now.getHours();
+  if(h<DB.settings.whStart||h>=DB.settings.whEnd) return;
+  const doneThisHour = DB.sessions.some(s=>s.d===todayStr() && new Date(s.t).getHours()===h);
+  const hourKey=todayStr()+'-'+h;
+  if(!doneThisHour && now.getMinutes()>=0 && DB.lastReminderHour!==hourKey){
+    DB.lastReminderHour=hourKey; save();
+    toast('👁️ Time for your hourly eye break');
+    chime(660,.3); setTimeout(()=>chime(880,.3),350);
+    if(DB.settings.notify && 'Notification' in window && Notification.permission==='granted'){
+      try{ new Notification('Dusk — eye break time', {body:'5 gentle exercises, 5 minutes. Your eyes have earned it.', tag:'dusk-reminder'}) }catch(e){}
+    }
+  }
+  if(!document.getElementById('view-home').classList.contains('hidden')) renderReminderCard();
+}
+setInterval(tickReminder, 30000);
+
+/* ---------- 2-hour nudge popup ---------- */
+const NUDGE_MS = 2*60*60*1000;
+let lastNudgeReset = Date.now();
+function tickNudge(){
+  const playerOpen = !document.getElementById('player').classList.contains('hidden');
+  const nudgeOpen = !document.getElementById('nudge').classList.contains('hidden');
+  if(playerOpen || nudgeOpen) return;
+  if(Date.now() - lastNudgeReset >= NUDGE_MS){
+    document.getElementById('nudge').classList.remove('hidden');
+    chime(660,.3); setTimeout(()=>chime(880,.3),350);
+  }
+}
+setInterval(tickNudge, 60000);
+function dismissNudge(){
+  lastNudgeReset = Date.now();
+  document.getElementById('nudge').classList.add('hidden');
+}
+function nudgeStart(){
+  dismissNudge();
+  startRoutine();
+}
+
+/* ---------- player ---------- */
+let queue=[], qi=0, phases=[], pi=0, remain=0, timer=null, paused=false, completedIds=[];
+
+function startRoutine(onlyIndex){
+  queue = (typeof onlyIndex==='number') ? [onlyIndex] : EXERCISES.map((_,i)=>i);
+  qi=0; completedIds=[];
+  document.getElementById('player').classList.remove('hidden');
+  document.getElementById('celebrate').classList.add('hidden');
+  chime(520,.2); // unlock audio on user gesture
+  loadExercise();
+}
+function loadExercise(){
+  const ex=EXERCISES[queue[qi]];
+  document.getElementById('ex-count').textContent=`${qi+1} of ${queue.length}`;
+  document.getElementById('ex-title').textContent=ex.name;
+  document.getElementById('ex-tag').textContent=ex.tag;
+  document.getElementById('running').classList.add('hidden');
+  document.getElementById('ready').classList.remove('hidden');
+  document.getElementById('ready-steps').innerHTML=ex.ready.map(s=>`<li>${s}</li>`).join('');
+  speak(ex.name+'. '+ex.ready.join(' ')+' Press start when you are ready.');
+}
+function beginExercise(){
+  const ex=EXERCISES[queue[qi]];
+  phases=ex.build(); pi=0; paused=false;
+  document.getElementById('ready').classList.add('hidden');
+  document.getElementById('running').classList.remove('hidden');
+  document.getElementById('instruction').textContent=ex.instruction;
+  document.getElementById('pause-btn').textContent='Pause';
+  setupVisual(ex.visual);
+  startPhase();
+}
+function setupVisual(kind){
+  const v=document.getElementById('visual');
+  if(kind==='eye'){
+    v.innerHTML=`<svg class="eye" viewBox="0 0 120 70">
+      <path id="lid-top" d="M10 35 Q60 -8 110 35" fill="none" stroke="var(--amber2)" stroke-width="3.5" stroke-linecap="round" style="transition:.45s"/>
+      <path id="lid-bot" d="M10 35 Q60 78 110 35" fill="none" stroke="var(--amber2)" stroke-width="3.5" stroke-linecap="round" style="transition:.45s"/>
+      <circle id="iris" cx="60" cy="35" r="14" fill="none" stroke="var(--sage)" stroke-width="3" style="transition:.45s"/>
+      <circle id="pupil" cx="60" cy="35" r="5.5" fill="var(--sage2)" style="transition:.45s"/>
+    </svg>`;
+  } else if(kind==='breath'){
+    v.innerHTML=`<div class="breath"></div>`;
+  } else if(kind==='gaze'){
+    v.innerHTML=`<div style="text-align:center"><div style="font-size:44px">🏔️</div><div style="font-size:12px;color:var(--faint);margin-top:6px">20 feet / 6 m away</div></div>`;
+  } else {
+    v.innerHTML=`<div class="orb" id="orb"></div>`;
+  }
+}
+function setEye(state){
+  const t=document.getElementById('lid-top'), b=document.getElementById('lid-bot');
+  const iris=document.getElementById('iris'), pupil=document.getElementById('pupil');
+  if(!t) return;
+  const show = state==='open';
+  iris.style.opacity = pupil.style.opacity = show?1:0;
+  if(state==='open'){ t.setAttribute('d','M10 35 Q60 -8 110 35'); b.setAttribute('d','M10 35 Q60 78 110 35') }
+  if(state==='closed'){ t.setAttribute('d','M10 35 Q60 33 110 35'); b.setAttribute('d','M10 35 Q60 37 110 35') }
+  if(state==='squeeze'){ t.setAttribute('d','M14 36 Q60 28 106 36'); b.setAttribute('d','M14 34 Q60 42 106 34') }
+}
+function setOrb(state,dur){
+  const o=document.getElementById('orb'); if(!o) return;
+  o.style.transitionDuration=(dur||2.8)+'s, '+(dur||2.8)+'s, .5s, .5s';
+  if(state==='near'){ o.classList.remove('small'); o.style.transform='scale(1.35)' }
+  if(state==='far'){ o.classList.add('small'); o.style.transform='scale(.55)' }
+  if(state==='in'){ o.classList.remove('small'); o.style.transform='scale(1.8)' }
+  if(state==='out'){ o.classList.remove('small'); o.style.transform='scale(.7)' }
+}
+function startPhase(){
+  const ph=phases[pi];
+  remain=ph.t;
+  const total=phases.reduce((a,p)=>a+p.t,0);
+  const elapsed=phases.slice(0,pi).reduce((a,p)=>a+p.t,0);
+  updateRing(elapsed,total);
+  document.getElementById('phase-word').textContent=ph.word;
+  document.getElementById('phase-count').textContent=(ph.count||'')+(ph.t>4?` · ${remain}s`:'');
+  if(ph.eye) setEye(ph.eye);
+  if(ph.orb) setOrb(ph.orb, ph.t);
+  chime(pi%2?620:780,.18);
+  if(ph.say && (pi===0 || ph.t>=4 || phases[pi-1].say!==ph.say)) speak(ph.say);
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    if(paused) return;
+    remain--;
+    const ph2=phases[pi];
+    document.getElementById('phase-count').textContent=(ph2.count||'')+(ph2.t>4?` · ${Math.max(remain,0)}s`:'');
+    updateRing(elapsed+(ph2.t-remain),total);
+    if(remain<=0){
+      pi++;
+      if(pi>=phases.length){ clearInterval(timer); finishExercise() }
+      else startPhase();
+    }
+  },1000);
+}
+function updateRing(done,total){
+  const C=2*Math.PI*46;
+  const r=document.getElementById('ring');
+  r.style.strokeDasharray=C;
+  r.style.strokeDashoffset=C*(1-done/total);
+}
+function togglePause(){
+  paused=!paused;
+  document.getElementById('pause-btn').textContent=paused?'Resume':'Pause';
+  if(paused) speechSynthesis && speechSynthesis.cancel();
+}
+function finishExercise(){
+  completedIds.push(EXERCISES[queue[qi]].id);
+  chime(660,.25); setTimeout(()=>chime(990,.35),260);
+  nextInQueue();
+}
+function skipExercise(){ clearInterval(timer); nextInQueue() }
+function nextInQueue(){
+  qi++;
+  if(qi<queue.length){ loadExercise() }
+  else endRoutine();
+}
+function endRoutine(){
+  clearInterval(timer);
+  document.getElementById('ready').classList.add('hidden');
+  document.getElementById('running').classList.add('hidden');
+  if(completedIds.length){
+    DB.sessions.push({d:todayStr(), t:Date.now(), ex:completedIds});
+    save();
+    lastNudgeReset = Date.now();
+    const streak=calcStreak();
+    document.getElementById('celebrate-sub').textContent =
+      `${completedIds.length} exercise${completedIds.length>1?'s':''} done · ${streak} day streak 🔥`;
+    document.getElementById('celebrate').classList.remove('hidden');
+    speak('Well done. Break complete.');
+  } else { closePlayer() }
+}
+function closePlayer(){
+  clearInterval(timer);
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  if(document.getElementById('celebrate').classList.contains('hidden') && completedIds.length){
+    // ended early but some exercises were completed — still record them
+    DB.sessions.push({d:todayStr(), t:Date.now(), ex:completedIds});
+    save();
+  }
+  completedIds=[];
+  document.getElementById('player').classList.add('hidden');
+  renderHome();
+}
+
+/* ---------- progress view ---------- */
+function renderProgress(){
+  document.getElementById('st-streak').textContent=calcStreak();
+  document.getElementById('st-best').textContent=Math.max(calcBest(),calcStreak());
+  document.getElementById('st-total').textContent=DB.sessions.length;
+
+  const now=new Date();
+  document.getElementById('cal-month').textContent =
+    now.toLocaleDateString([],{month:'long',year:'numeric'});
+  const y=now.getFullYear(), m=now.getMonth();
+  const first=new Date(y,m,1);
+  const days=new Date(y,m+1,0).getDate();
+  const lead=(first.getDay()+6)%7; // Monday-first
+  const counts={};
+  DB.sessions.forEach(s=>{counts[s.d]=(counts[s.d]||0)+1});
+  let html='';
+  for(let i=0;i<lead;i++) html+='<div></div>';
+  for(let d=1;d<=days;d++){
+    const k=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const c=counts[k]||0;
+    const lvl=c>=4?3:c>=2?2:c>=1?1:0;
+    html+=`<div class="d ${lvl?'lvl'+lvl:''} ${k===todayStr()?'today':''}"><span class="n">${d}</span>${c?`<span>${c}</span>`:''}</div>`;
+  }
+  document.getElementById('cal').innerHTML=html;
+}
+
+/* ---------- settings ---------- */
+function renderSettings(){
+  document.getElementById('tg-remind').classList.toggle('on',DB.settings.remind);
+  document.getElementById('tg-sound').classList.toggle('on',DB.settings.sound);
+  document.getElementById('tg-voice').classList.toggle('on',DB.settings.voice);
+  document.getElementById('tg-notify').classList.toggle('on',
+    DB.settings.notify && 'Notification' in window && Notification.permission==='granted');
+  const s=document.getElementById('wh-start'), e=document.getElementById('wh-end');
+  if(!s.options.length){
+    for(let h=5;h<=23;h++){
+      s.add(new Option(h+':00',h)); e.add(new Option(h+':00',h));
+    }
+  }
+  s.value=DB.settings.whStart; e.value=DB.settings.whEnd;
+}
+function toggleSetting(k,btn){
+  DB.settings[k]=!DB.settings[k]; save();
+  btn.classList.toggle('on',DB.settings[k]);
+  if(k==='remind') renderReminderCard();
+}
+async function toggleNotify(btn){
+  if(!('Notification' in window)){ toast('Notifications not supported in this browser'); return }
+  if(DB.settings.notify){ DB.settings.notify=false; save(); btn.classList.remove('on'); return }
+  const perm=await Notification.requestPermission();
+  if(perm==='granted'){ DB.settings.notify=true; save(); btn.classList.add('on'); toast('Notifications enabled 🔔') }
+  else toast('Permission was not granted');
+}
+function saveWorkHours(){
+  const s=+document.getElementById('wh-start').value, e=+document.getElementById('wh-end').value;
+  if(e<=s){ toast('End must be after start'); renderSettings(); return }
+  DB.settings.whStart=s; DB.settings.whEnd=e; save();
+}
+
+/* ---------- export / import ---------- */
+function exportData(){
+  const blob=new Blob([JSON.stringify({app:'dusk-eye-care',exported:new Date().toISOString(),sessions:DB.sessions},null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='dusk-eye-progress-'+todayStr()+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('Backup saved 📁');
+}
+function importData(input){
+  const f=input.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const data=JSON.parse(r.result);
+      if(!Array.isArray(data.sessions)) throw 0;
+      const seen=new Set(DB.sessions.map(s=>s.t));
+      let added=0;
+      for(const s of data.sessions){
+        if(s && s.d && s.t && !seen.has(s.t)){ DB.sessions.push(s); added++ }
+      }
+      DB.sessions.sort((a,b)=>a.t-b.t);
+      save(); renderHome();
+      toast(`Merged ${added} session${added===1?'':'s'} ✓`);
+    }catch(e){ toast('That file doesn\'t look like a Dusk backup') }
+  };
+  r.readAsText(f);
+  input.value='';
+}
+
+/* ---------- toast ---------- */
+let toastT=null;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+/* ---------- boot ---------- */
+renderHome(); renderSettings(); tickReminder();
+</script>
+</body>
+</html>
