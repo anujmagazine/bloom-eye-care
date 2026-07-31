@@ -213,7 +213,7 @@
 
     <button class="start-btn" onclick="startRoutine()">
       Begin eye break
-      <small>5 guided exercises · about 5 minutes</small>
+      <small id="start-btn-sub">5 guided exercises · about 5 minutes</small>
     </button>
 
     <div class="section-label">Today, hour by hour</div>
@@ -266,6 +266,10 @@
         </div>
       </div>
     </div>
+
+    <div class="section-label">Your routine</div>
+    <div class="card" id="ex-toggle-list"></div>
+    <div class="note" style="margin:4px 6px 20px">Turn off any exercise that doesn't apply to you — "Begin eye break" will only run the ones left on. At least one must stay on.</div>
 
     <div class="section-label">Guidance</div>
     <div class="card">
@@ -482,10 +486,15 @@ function load(){
 function save(){ localStorage.setItem(KEY, JSON.stringify(DB)) }
 const DB = Object.assign({
   sessions:[],            // {d:'2026-07-11', t:epoch, ex:['blink',...]}  one entry per completed break
-  settings:{remind:true, sound:true, voice:true, notify:false, whStart:9, whEnd:18},
+  settings:{remind:true, sound:true, voice:true, notify:false, whStart:9, whEnd:18, enabled:{}},
   lastReminderHour:null
 }, load());
-DB.settings = Object.assign({remind:true,sound:true,voice:true,notify:false,whStart:9,whEnd:18}, DB.settings);
+DB.settings = Object.assign({remind:true,sound:true,voice:true,notify:false,whStart:9,whEnd:18,enabled:{}}, DB.settings);
+DB.settings.enabled = Object.assign(Object.fromEntries(EXERCISES.map(e=>[e.id,true])), DB.settings.enabled);
+function enabledExerciseIndexes(){
+  const idx = EXERCISES.map((_,i)=>i).filter(i=>DB.settings.enabled[EXERCISES[i].id]!==false);
+  return idx.length ? idx : EXERCISES.map((_,i)=>i);
+}
 
 const todayStr = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 
@@ -561,6 +570,10 @@ function renderHome(){
   document.getElementById('today-sub').innerHTML =
     todayCount ? `<b>${todayCount}</b> break${todayCount>1?'s':''} completed today` : 'No sessions yet today';
 
+  const activeCount = enabledExerciseIndexes().length;
+  document.getElementById('start-btn-sub').textContent =
+    `${activeCount} guided exercise${activeCount>1?'s':''} · about ${activeCount} minute${activeCount>1?'s':''}`;
+
   // hour ribbon
   const {whStart,whEnd}=DB.settings;
   const hoursDone=new Set(DB.sessions.filter(s=>s.d===todayStr()).map(s=>new Date(s.t).getHours()));
@@ -574,12 +587,15 @@ function renderHome(){
   // exercise list
   const doneToday=new Set();
   DB.sessions.filter(s=>s.d===todayStr()).forEach(s=>(s.ex||[]).forEach(e=>doneToday.add(e)));
-  document.getElementById('ex-list').innerHTML = EXERCISES.map((e,i)=>`
-    <div class="ex-row">
+  document.getElementById('ex-list').innerHTML = EXERCISES.map((e,i)=>{
+    const off = DB.settings.enabled[e.id]===false;
+    return `
+    <div class="ex-row" style="${off?'opacity:.45':''}">
       <div class="ex-icon">${e.icon}</div>
-      <div><div class="name">${e.name}</div><div class="why">${e.tag}</div></div>
+      <div><div class="name">${e.name}${off?' <span style=\'font-size:11px;color:var(--faint)\'>(off)</span>':''}</div><div class="why">${e.tag}</div></div>
       ${doneToday.has(e.id)?'<div class="done-mark">✓</div>':`<button class="play" onclick="startRoutine(${i})">1 min</button>`}
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   renderReminderCard();
 }
@@ -648,7 +664,7 @@ function nudgeStart(){
 let queue=[], qi=0, phases=[], pi=0, remain=0, timer=null, paused=false, completedIds=[];
 
 function startRoutine(onlyIndex){
-  queue = (typeof onlyIndex==='number') ? [onlyIndex] : EXERCISES.map((_,i)=>i);
+  queue = (typeof onlyIndex==='number') ? [onlyIndex] : enabledExerciseIndexes();
   qi=0; completedIds=[];
   document.getElementById('player').classList.remove('hidden');
   document.getElementById('celebrate').classList.add('hidden');
@@ -814,6 +830,11 @@ function renderProgress(){
 
 /* ---------- settings ---------- */
 function renderSettings(){
+  document.getElementById('ex-toggle-list').innerHTML = EXERCISES.map(e=>`
+    <div class="set-row">
+      <div><div class="lbl">${e.icon} ${e.name}</div><div class="hint">${e.tag}</div></div>
+      <button class="toggle ${DB.settings.enabled[e.id]!==false?'on':''}" onclick="toggleExercise('${e.id}',this)"></button>
+    </div>`).join('');
   document.getElementById('tg-remind').classList.toggle('on',DB.settings.remind);
   document.getElementById('tg-sound').classList.toggle('on',DB.settings.sound);
   document.getElementById('tg-voice').classList.toggle('on',DB.settings.voice);
@@ -826,6 +847,15 @@ function renderSettings(){
     }
   }
   s.value=DB.settings.whStart; e.value=DB.settings.whEnd;
+}
+function toggleExercise(id,btn){
+  const willEnable = DB.settings.enabled[id]===false;
+  if(!willEnable){
+    const remainingOn = EXERCISES.filter(e=>e.id!==id && DB.settings.enabled[e.id]!==false).length;
+    if(remainingOn===0){ toast('At least one exercise must stay on'); return }
+  }
+  DB.settings.enabled[id]=willEnable; save();
+  btn.classList.toggle('on',willEnable);
 }
 function toggleSetting(k,btn){
   DB.settings[k]=!DB.settings[k]; save();
