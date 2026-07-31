@@ -1,4 +1,4 @@
-# Dusk — Eye Care Companion
+# Bloom — Eye Care Companion
 
 A single-file, fully offline eye-exercise app for severe dry eye + digital eye strain.
 Everything is in `index.html` — no installation, no internet, no account, no data leaves the device.

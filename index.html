@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Dusk — Eye Care Companion</title>
+<title>Bloom — Eye Care Companion</title>
 <style>
   :root{
     --bg:#161311; --bg2:#1d1917; --card:#211d1a; --card2:#282320;
@@ -192,7 +192,7 @@
 <body>
 <div id="app">
   <header>
-    <h1>Dusk <span>eye care</span></h1>
+    <h1>Bloom <span>eye care</span></h1>
     <div id="clock"></div>
   </header>
 
@@ -370,7 +370,7 @@
 <script>
 'use strict';
 /* =================================================================
-   Dusk — local eye-care companion.
+   Bloom — local eye-care companion.
    Everything stored in localStorage; no network calls anywhere.
    ================================================================= */
 
@@ -631,7 +631,7 @@ function tickReminder(){
     toast('👁️ Time for your hourly eye break');
     chime(660,.3); setTimeout(()=>chime(880,.3),350);
     if(DB.settings.notify && 'Notification' in window && Notification.permission==='granted'){
-      try{ new Notification('Dusk — eye break time', {body:'5 gentle exercises, 5 minutes. Your eyes have earned it.', tag:'dusk-reminder'}) }catch(e){}
+      try{ new Notification('Bloom — eye break time', {body:'5 gentle exercises, 5 minutes. Your eyes have earned it.', tag:'bloom-reminder'}) }catch(e){}
     }
   }
   if(!document.getElementById('view-home').classList.contains('hidden')) renderReminderCard();
@@ -877,10 +877,10 @@ function saveWorkHours(){
 
 /* ---------- export / import ---------- */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'dusk-eye-care',exported:new Date().toISOString(),sessions:DB.sessions},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'bloom-eye-care',exported:new Date().toISOString(),sessions:DB.sessions},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='dusk-eye-progress-'+todayStr()+'.json';
+  a.download='bloom-eye-progress-'+todayStr()+'.json';
   a.click(); URL.revokeObjectURL(a.href);
   toast('Backup saved 📁');
 }
@@ -899,7 +899,7 @@ function importData(input){
       DB.sessions.sort((a,b)=>a.t-b.t);
       save(); renderHome();
       toast(`Merged ${added} session${added===1?'':'s'} ✓`);
-    }catch(e){ toast('That file doesn\'t look like a Dusk backup') }
+    }catch(e){ toast('That file doesn\'t look like a Bloom backup') }
   };
   r.readAsText(f);
   input.value='';
