@@ -7,6 +7,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Bloom — Eye Care Companion</title>
 <style>
   :root{
@@ -247,6 +250,13 @@
 
   <!-- ============ SETTINGS ============ -->
   <div id="view-settings" class="hidden">
+    <div class="card hidden" id="install-row">
+      <div class="set-row">
+        <div><div class="lbl">Install Bloom as an app</div><div class="hint">Adds a taskbar/home-screen icon and enables background reminders</div></div>
+        <button class="pill-btn" onclick="installApp()">Install</button>
+      </div>
+    </div>
+
     <div class="section-label">Reminders</div>
     <div class="card">
       <div class="set-row">
@@ -617,6 +627,66 @@ function renderReminderCard(){
   }
 }
 
+/* ---------- mirror reminder-relevant state to IndexedDB ----------
+   The service worker can't read localStorage, so periodicsync needs
+   this tiny mirror to decide whether a background reminder is due. */
+function idbOpen(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open('bloom-eye-care-idb',1);
+    req.onupgradeneeded=()=>req.result.createObjectStore('state');
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function mirrorReminderState(){
+  if(!('indexedDB' in window)) return;
+  try{
+    const db=await idbOpen();
+    const doneHours=[...new Set(DB.sessions.filter(s=>s.d===todayStr()).map(s=>new Date(s.t).getHours()))];
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('state','readwrite');
+      tx.objectStore('state').put({remind:DB.settings.remind, whStart:DB.settings.whStart, whEnd:DB.settings.whEnd, today:todayStr(), doneHours}, 'reminder');
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+    db.close();
+  }catch(e){ /* background reminders degrade gracefully; in-page reminders still work */ }
+}
+
+/* ---------- PWA install + service worker ---------- */
+let deferredInstallPrompt=null;
+window.addEventListener('beforeinstallprompt', e=>{
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  document.getElementById('install-row').classList.remove('hidden');
+});
+window.addEventListener('appinstalled', ()=>{
+  document.getElementById('install-row').classList.add('hidden');
+  toast('Bloom installed ✓');
+});
+async function installApp(){
+  if(!deferredInstallPrompt){ toast('Already installed, or your browser doesn\'t support installing'); return }
+  deferredInstallPrompt.prompt();
+  const choice=await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt=null;
+  document.getElementById('install-row').classList.add('hidden');
+  if(choice.outcome==='accepted') toast('Installed — look for Bloom on your home screen or taskbar');
+}
+async function registerServiceWorker(){
+  if(!('serviceWorker' in navigator)) return;
+  try{
+    const reg=await navigator.serviceWorker.register('sw.js');
+    await mirrorReminderState();
+    if('periodicSync' in reg){
+      try{
+        const status=await navigator.permissions.query({name:'periodic-background-sync'});
+        if(status.state==='granted'){
+          await reg.periodicSync.register('bloom-reminder-check', {minInterval:60*60*1000});
+        }
+      }catch(e){ /* periodic background sync unsupported or not yet granted — normal on first use */ }
+    }
+  }catch(e){}
+}
+
 /* ---------- hourly reminder engine ---------- */
 function tickReminder(){
   document.getElementById('clock').textContent =
@@ -635,8 +705,12 @@ function tickReminder(){
     }
   }
   if(!document.getElementById('view-home').classList.contains('hidden')) renderReminderCard();
+  mirrorReminderState();
 }
 setInterval(tickReminder, 30000);
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='visible'){ tickReminder(); tickNudge(); }
+});
 
 /* ---------- 2-hour nudge popup ---------- */
 const NUDGE_MS = 2*60*60*1000;
@@ -781,6 +855,7 @@ function endRoutine(){
   if(completedIds.length){
     DB.sessions.push({d:todayStr(), t:Date.now(), ex:completedIds});
     save();
+    mirrorReminderState();
     lastNudgeReset = Date.now();
     const streak=calcStreak();
     document.getElementById('celebrate-sub').textContent =
@@ -796,6 +871,7 @@ function closePlayer(){
     // ended early but some exercises were completed — still record them
     DB.sessions.push({d:todayStr(), t:Date.now(), ex:completedIds});
     save();
+    mirrorReminderState();
   }
   completedIds=[];
   document.getElementById('player').classList.add('hidden');
@@ -860,19 +936,20 @@ function toggleExercise(id,btn){
 function toggleSetting(k,btn){
   DB.settings[k]=!DB.settings[k]; save();
   btn.classList.toggle('on',DB.settings[k]);
-  if(k==='remind') renderReminderCard();
+  if(k==='remind'){ renderReminderCard(); mirrorReminderState(); }
 }
 async function toggleNotify(btn){
   if(!('Notification' in window)){ toast('Notifications not supported in this browser'); return }
   if(DB.settings.notify){ DB.settings.notify=false; save(); btn.classList.remove('on'); return }
   const perm=await Notification.requestPermission();
-  if(perm==='granted'){ DB.settings.notify=true; save(); btn.classList.add('on'); toast('Notifications enabled 🔔') }
+  if(perm==='granted'){ DB.settings.notify=true; save(); btn.classList.add('on'); toast('Notifications enabled 🔔'); registerServiceWorker() }
   else toast('Permission was not granted');
 }
 function saveWorkHours(){
   const s=+document.getElementById('wh-start').value, e=+document.getElementById('wh-end').value;
   if(e<=s){ toast('End must be after start'); renderSettings(); return }
   DB.settings.whStart=s; DB.settings.whEnd=e; save();
+  mirrorReminderState();
 }
 
 /* ---------- export / import ---------- */
@@ -915,7 +992,7 @@ function toast(msg){
 }
 
 /* ---------- boot ---------- */
-renderHome(); renderSettings(); tickReminder();
+renderHome(); renderSettings(); tickReminder(); registerServiceWorker();
 </script>
 </body>
 </html>

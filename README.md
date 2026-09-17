@@ -1,7 +1,7 @@
 # Bloom — Eye Care Companion
 
-A single-file, fully offline eye-exercise app for severe dry eye + digital eye strain.
-Everything is in `index.html` — no installation, no internet, no account, no data leaves the device.
+A fully offline eye-exercise app for severe dry eye + digital eye strain, installable as a real app on
+Windows/Mac and Android. No internet, no account, no data leaves the device.
 
 ## The 5 exercises (~1 minute each)
 
@@ -13,15 +13,19 @@ Everything is in `index.html` — no installation, no internet, no account, no d
 | **Smooth Convergence** — 6 slow thumb push-ups toward nose | The tired-eye squint (eye-teaming fatigue) | Home-based pencil push-up studies showed improved near point of convergence over 12 weeks |
 | **Warm Palming** — 60s of warm darkness | Rest + comfort for sore, dry eyes | Classic rest technique; warmth supports meibomian (oil) gland function |
 
-## Getting it on his devices
+## Installing it
 
-**PC:** copy `index.html` anywhere and double-click it. It opens in the browser and works fully offline. Keep the tab pinned during work hours so hourly reminders fire.
+Open the live site (or `index.html` via a local server — service workers need `http(s)://` or `localhost`, not `file://`), then:
 
-**Phone (Android/iPhone):** send him the file (WhatsApp/email/Drive), open it, choose *Open in Chrome/Safari*, then **Add to Home Screen** from the browser menu. It behaves like an app from then on.
+- **Windows/Mac (Chrome/Edge):** Settings → **Install Bloom as an app** (or the install icon in the address bar). It gets a real taskbar/dock icon and its own window — no more hunting for a browser tab.
+- **Android (Chrome):** same install prompt, adds a home-screen icon.
+- **iPhone (Safari):** Add to Home Screen still works the same as before; see the reliability note below for why background reminders are more limited there.
 
 ## Reminders, streaks, sync
 
-- **Hourly reminders** fire during his working hours (set in Settings) with a chime + optional system notification. The tab must be open (browsers don't allow closed pages to schedule alerts without a server).
+- **While the app/tab is open** (foreground or backgrounded), hourly reminders and the 2-hour nudge popup work reliably — a chime plus a toast or popup, and the check now also re-runs immediately when you switch back to the tab.
+- **When fully closed, after installing:** on Windows/Mac and Android, an installed Bloom can still show a system notification via Periodic Background Sync — a browser API with no user-facing permission prompt. Chrome grants it automatically to installed PWAs based on how often you actually use the app, so it typically takes a few days of normal use before background reminders start firing reliably. This is a browser-level trust mechanic, not a bug in the app.
+- **iPhone:** Apple does not allow any web app to schedule local reminders while fully closed without genuine server-sent push — which would mean standing up a backend, breaking the zero-server design. Add-to-Home-Screen still works there; background reminders don't.
 - **Streak & calendar** are tracked automatically; a break counts once at least one exercise is completed.
 - **PC ↔ phone sync:** Settings → *Export progress* on one device, *Import* on the other. Imports **merge** (never overwrite), so it's safe in both directions.
 
