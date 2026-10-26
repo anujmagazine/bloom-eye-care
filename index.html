@@ -10,17 +10,23 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Bloom — Eye Care Companion</title>
+<title>Bloom — Health Routines</title>
 <style>
   :root{
     --bg:#161311; --bg2:#1d1917; --card:#211d1a; --card2:#282320;
     --line:#352e29; --line2:#453c35;
     --text:#ece3d4; --dim:#a89a87; --faint:#6e6355;
-    --amber:#e2a25c; --amber2:#f0bd82; --sage:#9db89a; --sage2:#b9d1b6;
-    --rose:#cf8d7e; --blue:#8fa9bd;
+    --sage:#9db89a; --sage2:#b9d1b6; --rose:#cf8d7e;
     --serif:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,'Times New Roman',serif;
     --sans:'Avenir Next','Segoe UI',Seravek,Candara,Calibri,sans-serif;
     --r:22px;
+    --acc:#e2a25c; --acc2:#f0bd82; --btn1:#8a5f30; --btn2:#6e4a24; --btnb:#a5713a;
+  }
+  .p-eyes{--acc:#e2a25c; --acc2:#f0bd82; --btn1:#8a5f30; --btn2:#6e4a24; --btnb:#a5713a}
+  .p-shoulder{--acc:#76b3aa; --acc2:#a6d3cb; --btn1:#3d6c66; --btn2:#2c524d; --btnb:#5b8f87}
+  .p-eyes,.p-shoulder{
+    --accbg:color-mix(in srgb, var(--acc) 10%, transparent);
+    --accline:color-mix(in srgb, var(--acc) 36%, transparent);
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{height:100%}
@@ -28,8 +34,8 @@
     font-family:var(--sans); background:var(--bg); color:var(--text);
     min-height:100%; line-height:1.5; font-size:16px;
     background-image:
-      radial-gradient(1200px 600px at 80% -10%, rgba(226,162,92,.07), transparent 60%),
-      radial-gradient(900px 500px at -10% 110%, rgba(157,184,154,.05), transparent 60%);
+      radial-gradient(1100px 560px at 85% -10%, rgba(226,162,92,.07), transparent 60%),
+      radial-gradient(900px 520px at -10% 105%, rgba(118,179,170,.07), transparent 60%);
     background-attachment:fixed;
   }
   #app{max-width:520px;margin:0 auto;padding:22px 18px calc(96px + env(safe-area-inset-bottom));min-height:100vh}
@@ -37,123 +43,156 @@
   button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer;font-size:inherit}
   .hidden{display:none!important}
 
-  /* ---------- header ---------- */
-  header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px}
-  header h1{font-size:26px;color:var(--amber2)}
+  header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+  header h1{font-size:26px;color:#f0bd82}
   header h1 span{color:var(--faint);font-size:15px;font-style:italic;margin-left:8px}
   #clock{font-size:14px;color:var(--faint);font-variant-numeric:tabular-nums}
+  .greet{margin:0 2px 18px;color:var(--dim);font-size:14.5px}
 
-  /* ---------- cards ---------- */
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:14px}
+  .section-label{font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--faint);margin:20px 4px 10px}
+  .note{font-size:12.5px;color:var(--faint);line-height:1.55;margin-top:12px}
 
-  /* ---------- streak hero ---------- */
-  .hero{display:flex;gap:18px;align-items:center}
-  .flame{
-    width:74px;height:74px;border-radius:50%;flex:none;
-    display:flex;align-items:center;justify-content:center;font-size:34px;
-    background:radial-gradient(circle at 50% 65%, rgba(226,162,92,.22), rgba(226,162,92,.05) 70%);
-    border:1px solid rgba(226,162,92,.35);
-  }
-  .hero .big{font-family:var(--serif);font-size:34px;color:var(--amber2);line-height:1.1}
-  .hero .sub{color:var(--dim);font-size:14px}
-  .hero .sub b{color:var(--sage2);font-weight:600}
-
-  /* ---------- reminder banner ---------- */
-  .reminder{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--dim)}
-  .reminder .dot{width:9px;height:9px;border-radius:50%;background:var(--sage);flex:none;animation:pulse 2.4s ease-in-out infinite}
-  .reminder.due .dot{background:var(--amber)}
-  .reminder.due{color:var(--amber2)}
+  /* ---------- program cards ---------- */
+  .prog{border-radius:24px;padding:20px;margin-bottom:16px;border:1px solid var(--accline);
+    background:linear-gradient(155deg,var(--accbg),transparent 55%),var(--card);
+    animation:rise .5s cubic-bezier(.2,.8,.3,1) both}
+  .prog:nth-child(3){animation-delay:.08s}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .prog-head{display:flex;gap:14px;align-items:center}
+  .prog-ico{width:52px;height:52px;border-radius:16px;flex:none;display:flex;align-items:center;justify-content:center;
+    background:var(--accbg);border:1px solid var(--accline);color:var(--acc2)}
+  .prog-title{font-family:var(--serif);font-size:21px;color:var(--acc2);line-height:1.2}
+  .prog-sub{font-size:13px;color:var(--dim)}
+  .streak-badge{margin-left:auto;text-align:center;flex:none;min-width:58px}
+  .streak-badge .n{font-family:var(--serif);font-size:28px;color:var(--acc2);line-height:1}
+  .streak-badge .k{font-size:10.5px;color:var(--faint);letter-spacing:.6px;text-transform:uppercase;margin-top:3px}
+  .prog-actions{display:flex;gap:10px;margin-top:16px}
+  .btn-acc{flex:1;padding:14px 16px;border-radius:16px;text-align:center;color:#fdf6ea;
+    background:linear-gradient(160deg,var(--btn1),var(--btn2));border:1px solid var(--btnb);
+    font-family:var(--serif);font-size:17.5px;box-shadow:inset 0 1px 0 rgba(255,255,255,.1);transition:transform .15s}
+  .btn-acc small{display:block;font-family:var(--sans);font-size:12px;opacity:.78;margin-top:2px}
+  .btn-acc:active,.btn-ghost:active{transform:scale(.98)}
+  .btn-ghost{padding:14px 16px;border-radius:16px;border:1px solid var(--line2);color:var(--dim);font-size:14px}
+  .status{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--dim);margin-top:14px}
+  .status .dot{width:8px;height:8px;border-radius:50%;background:var(--sage);flex:none;animation:pulse 2.4s ease-in-out infinite}
+  .status.due{color:var(--acc2)}
+  .status.due .dot{background:var(--acc)}
+  .status b{font-variant-numeric:tabular-nums}
   @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
-  .reminder b{font-variant-numeric:tabular-nums}
+  .warn{margin-top:12px;font-size:13px;color:#e3b3a7;background:rgba(207,141,126,.08);border:1px solid rgba(207,141,126,.3);border-radius:12px;padding:10px 12px;line-height:1.5}
 
-  /* ---------- start button ---------- */
-  .start-btn{
-    display:block;width:100%;padding:18px;border-radius:var(--r);
-    background:linear-gradient(160deg,#8a5f30,#6e4a24);
-    border:1px solid #a5713a; color:#fdf2e0;
-    font-family:var(--serif);font-size:20px;letter-spacing:.3px;
-    box-shadow:0 6px 24px rgba(226,162,92,.15), inset 0 1px 0 rgba(255,255,255,.12);
-    transition:transform .15s ease, box-shadow .2s;
-    margin-bottom:14px;
-  }
-  .start-btn:active{transform:scale(.98)}
-  .start-btn small{display:block;font-family:var(--sans);font-size:12.5px;color:#e8cba2;margin-top:3px;letter-spacing:.2px}
+  .hours{display:flex;gap:4px;margin-top:16px}
+  .hours .h{flex:1;height:24px;border-radius:7px;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--faint)}
+  .hours .h.done{background:var(--accbg);border-color:var(--accline);color:var(--acc2)}
+  .hours .h.now{outline:1.5px solid var(--acc);outline-offset:1px}
 
-  /* ---------- exercise list ---------- */
+  .slots{display:flex;gap:8px;margin-top:16px}
+  .slot{flex:1;border-radius:13px;border:1px solid var(--line);background:var(--card2);padding:9px 6px;text-align:center;font-size:12px;color:var(--faint)}
+  .slot b{display:block;font-size:13px;color:var(--dim);font-weight:600}
+  .slot.done{background:var(--accbg);border-color:var(--accline);color:var(--acc2)}
+  .slot.done b{color:var(--acc2)}
+  .slot.due{outline:1.5px solid var(--acc);outline-offset:1px}
+
+  /* ---------- exercise rows (sheet) ---------- */
   .ex-row{display:flex;align-items:center;gap:14px;padding:13px 4px;border-bottom:1px solid var(--line)}
   .ex-row:last-child{border-bottom:none}
   .ex-icon{width:42px;height:42px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--card2);border:1px solid var(--line2)}
   .ex-row .name{font-size:15.5px;font-weight:600}
   .ex-row .why{font-size:12.5px;color:var(--dim)}
-  .ex-row .done-mark{margin-left:auto;color:var(--sage);font-size:18px;flex:none}
-  .ex-row .play{margin-left:auto;color:var(--faint);font-size:13px;border:1px solid var(--line2);border-radius:999px;padding:5px 12px;flex:none}
-  .ex-row .play:active{color:var(--amber2);border-color:var(--amber)}
-  .section-label{font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:var(--faint);margin:20px 4px 10px}
+  .ex-row .done-mark{margin-left:auto;color:var(--acc2);font-size:18px;flex:none}
+  .ex-row .play{margin-left:auto;color:var(--dim);font-size:13px;border:1px solid var(--line2);border-radius:999px;padding:5px 12px;flex:none}
 
-  /* ---------- hours ribbon ---------- */
-  .hours{display:flex;gap:5px;margin-top:12px}
-  .hours .h{flex:1;height:26px;border-radius:7px;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--faint)}
-  .hours .h.done{background:rgba(157,184,154,.18);border-color:rgba(157,184,154,.45);color:var(--sage2)}
-  .hours .h.now{outline:1.5px solid var(--amber);outline-offset:1px}
+  /* ---------- details sheet ---------- */
+  #sheet{position:fixed;inset:0;background:var(--bg);z-index:45;overflow-y:auto;padding:20px 18px calc(30px + env(safe-area-inset-bottom))}
+  #sheet .inner{max-width:520px;margin:0 auto}
+  .back{font-size:15px;color:var(--dim);padding:8px 14px;border:1px solid var(--line2);border-radius:999px}
+  .sheet-title{font-family:var(--serif);font-size:28px;color:var(--acc2);margin:18px 2px 4px}
+  .sheet-sub{color:var(--dim);font-size:14.5px;margin:0 2px 8px}
+  .info{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 18px;margin-bottom:12px;font-size:14px;color:var(--dim);line-height:1.6}
+  .info h3{font-size:16px;color:var(--text);margin-bottom:6px}
+  .info ul{margin-left:18px} .info li{margin:5px 0}
+  .info.accent{background:var(--accbg);border-color:var(--accline);color:var(--text)}
+  .info b{color:var(--text)}
 
   /* ---------- player ---------- */
   #player{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;flex-direction:column;align-items:center;padding:20px 22px calc(24px + env(safe-area-inset-bottom));overflow-y:auto}
   #player .top{width:100%;max-width:520px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
   #player .top .ex-count{color:var(--faint);font-size:13.5px;letter-spacing:1px}
   #player .top .close{font-size:15px;color:var(--dim);padding:8px 14px;border:1px solid var(--line2);border-radius:999px}
-  #ex-title{font-family:var(--serif);font-size:27px;color:var(--amber2);text-align:center;margin-top:10px}
+  #ex-title{font-family:var(--serif);font-size:27px;color:var(--acc2);text-align:center;margin-top:10px}
   #ex-tag{color:var(--dim);font-size:13.5px;text-align:center;margin-top:2px;font-style:italic}
-
   .stage{position:relative;width:min(300px,72vw);height:min(300px,72vw);margin:26px 0 10px;flex:none}
   .stage svg.ring{position:absolute;inset:0;transform:rotate(-90deg)}
   .stage .ring-bg{fill:none;stroke:var(--line);stroke-width:5}
-  .stage .ring-fg{fill:none;stroke:var(--amber);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .95s linear, stroke .4s}
+  .stage .ring-fg{fill:none;stroke:var(--acc);stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset .95s linear}
   .visual{position:absolute;inset:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;
     background:radial-gradient(circle at 50% 40%, var(--card2), var(--bg2));border:1px solid var(--line)}
-
-  /* eye visual */
   .eye{width:64%;height:auto}
-  .eye .lid{transition:d .5s;}
-  /* orb for focus / palming / gaze */
-  .orb{width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 30%, var(--amber2), #8a5f30);box-shadow:0 0 28px rgba(226,162,92,.5);transition:transform 2.8s cubic-bezier(.45,0,.55,1), width .5s, height .5s}
+  .orb{width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 30%, var(--acc2), var(--btn1));box-shadow:0 0 28px color-mix(in srgb,var(--acc) 50%,transparent);transition:transform 2.8s cubic-bezier(.45,0,.55,1), width .5s, height .5s}
   .orb.small{width:18px;height:18px}
   .breath{width:52%;height:52%;border-radius:50%;background:radial-gradient(circle, rgba(157,184,154,.35), rgba(157,184,154,.06) 70%);border:1px solid rgba(157,184,154,.35);animation:breathe 6s ease-in-out infinite}
   @keyframes breathe{0%,100%{transform:scale(.72)}50%{transform:scale(1.15)}}
 
-  #phase-word{font-family:var(--serif);font-size:30px;min-height:44px;color:var(--text);text-align:center;transition:opacity .3s}
+  /* shoulder figures */
+  .fig{width:88%;height:auto;overflow:visible}
+  .fig .b{stroke:#7d7062;stroke-width:4.5;stroke-linecap:round;fill:none}
+  .fig .head{fill:none;stroke:#7d7062;stroke-width:3.5}
+  .fig .aff{stroke:var(--acc2);stroke-width:5.5;stroke-linecap:round;fill:none}
+  .fig .prop{stroke:var(--line2);stroke-width:3.5;stroke-linecap:round;fill:none}
+  .fig .stick{stroke:#c9b48f;stroke-width:4;stroke-linecap:round}
+  .fig .hand{fill:var(--acc2)}
+  .fig .guide{stroke:var(--acc);stroke-width:1.6;stroke-dasharray:3 4;fill:none;opacity:.7}
+  .fig .lbl{fill:var(--acc2);font:600 9px var(--sans);letter-spacing:.4px}
+  .fig .towel{fill:#5a4f45}
+
+  #phase-word{font-family:var(--serif);font-size:30px;min-height:44px;color:var(--text);text-align:center}
   #phase-count{font-size:15px;color:var(--faint);font-variant-numeric:tabular-nums;margin-top:2px;min-height:22px;text-align:center}
   #instruction{max-width:420px;text-align:center;color:var(--dim);font-size:14.5px;margin-top:14px;min-height:44px}
-
-  #player .controls{display:flex;gap:12px;margin-top:20px}
+  .controls{display:flex;gap:12px;margin-top:20px}
   .ctl{padding:13px 26px;border-radius:999px;border:1px solid var(--line2);color:var(--dim);font-size:15px}
-  .ctl.primary{background:linear-gradient(160deg,#8a5f30,#6e4a24);border-color:#a5713a;color:#fdf2e0;font-family:var(--serif);font-size:17px}
+  .ctl.primary{background:linear-gradient(160deg,var(--btn1),var(--btn2));border-color:var(--btnb);color:#fdf6ea;font-family:var(--serif);font-size:17px}
   .ctl:active{transform:scale(.97)}
-
-  /* get-ready overlay text */
-  .ready-steps{max-width:400px;color:var(--dim);font-size:15px;margin-top:14px}
+  .ready-steps{max-width:420px;color:var(--dim);font-size:15px;margin-top:14px;text-align:left}
   .ready-steps li{margin:8px 0 8px 20px}
+  .rule{max-width:420px;margin:16px auto 0;padding:12px 14px;border-radius:14px;background:var(--accbg);border:1px solid var(--accline);font-size:13.5px;color:var(--text);text-align:left;line-height:1.5}
 
-  /* ---------- completion ---------- */
-  #celebrate{text-align:center;padding:40px 20px}
+  #feel{text-align:center;padding:30px 10px;max-width:420px}
+  #feel h2{font-size:26px;color:var(--acc2);margin-bottom:6px}
+  #feel p{color:var(--dim);font-size:14.5px}
+  .feel-opts{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+  .feel-btn{display:flex;gap:14px;align-items:center;padding:15px 16px;border-radius:16px;border:1px solid var(--line2);background:var(--card);text-align:left}
+  .feel-btn:active{border-color:var(--acc)}
+  .feel-btn .e{font-size:28px;flex:none}
+  .feel-btn b{display:block;font-size:15.5px;color:var(--text)}
+  .feel-btn span{font-size:12.5px;color:var(--faint)}
+
+  #celebrate{text-align:center;padding:40px 20px;max-width:440px}
   #celebrate .emoji{font-size:56px}
-  #celebrate h2{font-size:28px;color:var(--sage2);margin:12px 0 6px}
+  #celebrate h2{font-size:28px;color:var(--acc2);margin:12px 0 6px}
   #celebrate p{color:var(--dim)}
 
-  /* ---------- calendar ---------- */
-  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+  /* ---------- progress ---------- */
+  .seg{display:flex;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:4px;margin-bottom:14px}
+  .seg button{flex:1;padding:10px;border-radius:10px;color:var(--faint);font-size:14px}
+  .seg button.on{background:var(--card);color:var(--acc2);box-shadow:0 1px 0 rgba(255,255,255,.04),0 2px 8px rgba(0,0,0,.25)}
+  .stat-row{display:flex;gap:12px}
+  .stat{flex:1;text-align:center;padding:14px 8px;background:var(--card);border:1px solid var(--line);border-radius:16px}
+  .stat .v{font-family:var(--serif);font-size:24px;color:var(--acc2)}
+  .stat .k{font-size:11.5px;color:var(--faint);letter-spacing:.5px;margin-top:2px}
+  .cal-head,.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal-head{margin-top:4px}
+  .cal{margin-top:8px}
+  .cal-head span{text-align:center;font-size:10.5px;color:var(--faint);letter-spacing:1px}
   .cal .d{aspect-ratio:1;border-radius:10px;background:var(--card2);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--faint)}
   .cal .d .n{font-size:13px;color:var(--dim)}
-  .cal .d.lvl1{background:rgba(157,184,154,.12);border-color:rgba(157,184,154,.3)}
-  .cal .d.lvl2{background:rgba(157,184,154,.22);border-color:rgba(157,184,154,.45)}
-  .cal .d.lvl3{background:rgba(157,184,154,.35);border-color:rgba(157,184,154,.65)}
-  .cal .d.lvl1 .n,.cal .d.lvl2 .n,.cal .d.lvl3 .n{color:var(--sage2)}
-  .cal .d.today{outline:1.5px solid var(--amber);outline-offset:1px}
-  .cal-head{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px}
-  .cal-head span{text-align:center;font-size:10.5px;color:var(--faint);letter-spacing:1px}
-  .stat-row{display:flex;gap:12px;margin-top:4px}
-  .stat{flex:1;text-align:center;padding:14px 8px;background:var(--card2);border:1px solid var(--line);border-radius:16px}
-  .stat .v{font-family:var(--serif);font-size:24px;color:var(--amber2)}
-  .stat .k{font-size:11.5px;color:var(--faint);letter-spacing:.5px;margin-top:2px}
+  .cal .d.lvl1{background:color-mix(in srgb,var(--acc) 12%,transparent);border-color:color-mix(in srgb,var(--acc) 30%,transparent)}
+  .cal .d.lvl2{background:color-mix(in srgb,var(--acc) 22%,transparent);border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+  .cal .d.lvl3{background:color-mix(in srgb,var(--acc) 36%,transparent);border-color:color-mix(in srgb,var(--acc) 65%,transparent)}
+  .cal .d[class*=lvl] .n{color:var(--acc2)}
+  .cal .d.today{outline:1.5px solid var(--acc);outline-offset:1px}
+  .feel-log{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:22px}
+  .feel-legend{font-size:12px;color:var(--faint);margin-top:10px}
 
   /* ---------- settings ---------- */
   .set-row{display:flex;align-items:center;justify-content:space-between;padding:14px 2px;border-bottom:1px solid var(--line);gap:12px}
@@ -162,32 +201,27 @@
   .set-row .hint{font-size:12.5px;color:var(--faint)}
   .toggle{width:52px;height:30px;border-radius:999px;background:var(--card2);border:1px solid var(--line2);position:relative;transition:.25s;flex:none}
   .toggle::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--faint);transition:.25s}
-  .toggle.on{background:rgba(157,184,154,.3);border-color:var(--sage)}
-  .toggle.on::after{left:25px;background:var(--sage2)}
+  .toggle.on{background:var(--accbg);border-color:var(--acc)}
+  .toggle.on::after{left:25px;background:var(--acc2)}
   select{background:var(--card2);color:var(--text);border:1px solid var(--line2);border-radius:10px;padding:7px 10px;font-size:14px}
-  .pill-btn{border:1px solid var(--line2);border-radius:999px;padding:9px 18px;color:var(--dim);font-size:14px}
-  .pill-btn:active{color:var(--amber2);border-color:var(--amber)}
-  .note{font-size:12.5px;color:var(--faint);line-height:1.55;margin-top:12px}
-  .note a{color:var(--blue)}
+  .pill-btn{border:1px solid var(--line2);border-radius:999px;padding:9px 18px;color:var(--dim);font-size:14px;flex:none}
+  .set-title{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:17px;color:var(--acc2);margin-bottom:4px}
 
-  /* ---------- tabs ---------- */
   nav{position:fixed;bottom:0;left:0;right:0;z-index:40;display:flex;justify-content:center;gap:6px;
     padding:10px 16px calc(12px + env(safe-area-inset-bottom));
-    background:linear-gradient(transparent, rgba(22,19,17,.88) 30%);backdrop-filter:blur(10px)}
+    background:linear-gradient(transparent, rgba(22,19,17,.9) 30%);backdrop-filter:blur(10px)}
   nav button{flex:1;max-width:160px;padding:11px 6px;border-radius:16px;color:var(--faint);font-size:12.5px;display:flex;flex-direction:column;align-items:center;gap:3px}
   nav button .ico{font-size:20px}
-  nav button.active{color:var(--amber2);background:rgba(226,162,92,.09)}
+  nav button.active{color:#f0bd82;background:rgba(226,162,92,.09)}
 
-  /* nudge popup */
   #nudge{position:fixed;inset:0;z-index:55;display:flex;align-items:center;justify-content:center;background:rgba(12,10,9,.6);backdrop-filter:blur(4px)}
   #nudge .box{background:var(--card);border:1px solid var(--line2);border-radius:var(--r);padding:30px 26px;max-width:340px;width:calc(100% - 48px);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:nudge-in .35s cubic-bezier(.2,.9,.3,1.2)}
   @keyframes nudge-in{from{opacity:0;transform:scale(.9) translateY(14px)}to{opacity:1;transform:none}}
   #nudge .eye-emoji{font-size:44px;animation:pulse 2.4s ease-in-out infinite}
-  #nudge h2{font-size:23px;color:var(--amber2);margin:10px 0 6px}
+  #nudge h2{font-size:23px;color:var(--acc2);margin:10px 0 6px}
   #nudge p{color:var(--dim);font-size:14.5px;line-height:1.55}
-  #nudge .controls{display:flex;gap:10px;margin-top:22px;justify-content:center}
+  #nudge .controls{justify-content:center;margin-top:22px}
 
-  /* toast */
   #toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--line2);color:var(--text);padding:11px 20px;border-radius:999px;font-size:14px;opacity:0;transition:.3s;z-index:60;pointer-events:none;white-space:nowrap}
   #toast.show{opacity:1;transform:translateX(-50%)}
 </style>
@@ -195,77 +229,88 @@
 <body>
 <div id="app">
   <header>
-    <h1>Bloom <span>eye care</span></h1>
+    <h1>Bloom <span>health routines</span></h1>
     <div id="clock"></div>
   </header>
 
-  <!-- ============ HOME ============ -->
+  <!-- ============ TODAY ============ -->
   <div id="view-home">
-    <div class="card hero">
-      <div class="flame" id="flame">🔥</div>
-      <div>
-        <div class="big"><span id="streak-n">0</span> day streak</div>
-        <div class="sub" id="today-sub">No sessions yet today</div>
+    <div class="greet" id="greet"></div>
+
+    <div class="prog p-eyes">
+      <div class="prog-head">
+        <div class="prog-ico"><svg viewBox="0 0 40 40" width="30" height="30"><path d="M4 20 Q20 5 36 20 Q20 35 4 20Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><circle cx="20" cy="20" r="5.5" fill="currentColor"/></svg></div>
+        <div><div class="prog-title">Dry Eye Care</div><div class="prog-sub">Hourly eye breaks while you work</div></div>
+        <div class="streak-badge"><div class="n" id="eyes-streak">0</div><div class="k">day streak</div></div>
+      </div>
+      <div class="hours" id="hours"></div>
+      <div class="status" id="eyes-status"><div class="dot"></div><div id="eyes-status-text"></div></div>
+      <div class="prog-actions">
+        <button class="btn-acc" onclick="startRoutine('eyes')">Start eye break<small id="eyes-start-sub"></small></button>
+        <button class="btn-ghost" onclick="openSheet('eyes')">Details</button>
       </div>
     </div>
 
-    <div class="card reminder" id="reminder-card">
-      <div class="dot"></div>
-      <div id="reminder-text">Hourly reminders are off — enable in Settings</div>
+    <div class="prog p-shoulder">
+      <div class="prog-head">
+        <div class="prog-ico"><svg viewBox="0 0 40 40" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="13" cy="9" r="4"/><path d="M13 13.5V27M13 27l-4 10M13 27l4 10M13 16l12-4"/><path d="M27 5a13 13 0 0 1 7 13" stroke-dasharray="2.6 3.2"/></svg></div>
+        <div><div class="prog-title">Frozen Shoulder</div><div class="prog-sub">Left · 3 gentle sessions a day</div></div>
+        <div class="streak-badge"><div class="n" id="sh-streak">0</div><div class="k">day streak</div></div>
+      </div>
+      <div class="slots" id="sh-slots"></div>
+      <div class="status" id="sh-status"><div class="dot"></div><div id="sh-status-text"></div></div>
+      <div class="warn hidden" id="sh-warn"></div>
+      <div class="prog-actions">
+        <button class="btn-acc" onclick="startRoutine('shoulder')">Start shoulder session<small>3 exercises · about 5 minutes</small></button>
+        <button class="btn-ghost" onclick="openSheet('shoulder')">Details</button>
+      </div>
     </div>
 
-    <button class="start-btn" onclick="startRoutine()">
-      Begin eye break
-      <small id="start-btn-sub">5 guided exercises · about 5 minutes</small>
-    </button>
-
-    <div class="section-label">Today, hour by hour</div>
-    <div class="card" style="padding:16px">
-      <div class="hours" id="hours"></div>
-      <div class="note" style="margin-top:10px">Aim for one break each working hour. Green = a break completed in that hour.</div>
-    </div>
-
-    <div class="section-label">The five exercises</div>
-    <div class="card" id="ex-list" style="padding:8px 16px"></div>
-
-    <div class="note" style="margin:4px 6px">
-      These exercises complement — never replace — his prescribed dry-eye treatment. With a Schirmer score of 1–3, he should keep using his drops/medication exactly as his ophthalmologist directed, and show this routine to the doctor at the next visit.
-    </div>
+    <div class="note" style="margin:4px 6px">Both routines support — never replace — the treatment your doctors prescribed. Tap <b>Details</b> on either card for how to do each exercise, how often, and when to call your doctor.</div>
   </div>
 
   <!-- ============ PROGRESS ============ -->
   <div id="view-progress" class="hidden">
-    <div class="stat-row">
-      <div class="stat"><div class="v" id="st-streak">0</div><div class="k">day streak</div></div>
-      <div class="stat"><div class="v" id="st-best">0</div><div class="k">best streak</div></div>
-      <div class="stat"><div class="v" id="st-total">0</div><div class="k">total breaks</div></div>
+    <div class="seg" id="prog-seg">
+      <button data-p="eyes" onclick="setProgressProgram('eyes')">Dry eye</button>
+      <button data-p="shoulder" onclick="setProgressProgram('shoulder')">Shoulder</button>
     </div>
-    <div class="section-label" id="cal-month"></div>
-    <div class="card" style="padding:16px">
-      <div class="cal-head"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
-      <div class="cal" id="cal"></div>
-      <div class="note">Shade deepens with more breaks in a day. 4+ breaks = deepest green.</div>
+    <div id="progress-body" class="p-eyes">
+      <div class="stat-row">
+        <div class="stat"><div class="v" id="st-streak">0</div><div class="k">day streak</div></div>
+        <div class="stat"><div class="v" id="st-best">0</div><div class="k">best streak</div></div>
+        <div class="stat"><div class="v" id="st-total">0</div><div class="k" id="st-total-k">total</div></div>
+      </div>
+      <div class="section-label" id="cal-month"></div>
+      <div class="card" style="padding:16px">
+        <div class="cal-head"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+        <div class="cal" id="cal"></div>
+        <div class="note" id="cal-note"></div>
+      </div>
+      <div id="feel-card" class="hidden">
+        <div class="section-label">How recent sessions felt</div>
+        <div class="card" style="padding:16px">
+          <div class="feel-log" id="feel-log"></div>
+          <div class="feel-legend">😌 comfortable · 😐 mild, settled · 😣 too painful — newest on the right. Worth showing your physio.</div>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- ============ SETTINGS ============ -->
   <div id="view-settings" class="hidden">
-    <div class="card hidden" id="install-row">
+    <div class="card hidden p-eyes" id="install-row">
       <div class="set-row">
-        <div><div class="lbl">Install Bloom as an app</div><div class="hint">Adds a taskbar/home-screen icon and enables background reminders</div></div>
+        <div><div class="lbl">Install Bloom as an app</div><div class="hint">Taskbar/home-screen icon + background reminders</div></div>
         <button class="pill-btn" onclick="installApp()">Install</button>
       </div>
     </div>
 
-    <div class="section-label">Reminders</div>
-    <div class="card">
+    <div class="section-label">Dry eye care</div>
+    <div class="card p-eyes">
       <div class="set-row">
-        <div><div class="lbl">Hourly reminders</div><div class="hint">Nudge every hour while the app is open</div></div>
+        <div><div class="lbl">Hourly reminders</div><div class="hint">One eye break each working hour</div></div>
         <button class="toggle" id="tg-remind" onclick="toggleSetting('remind',this)"></button>
-      </div>
-      <div class="set-row">
-        <div><div class="lbl">System notifications</div><div class="hint">Also notify when app is in background tab</div></div>
-        <button class="toggle" id="tg-notify" onclick="toggleNotify(this)"></button>
       </div>
       <div class="set-row">
         <div class="lbl">Working hours</div>
@@ -275,28 +320,39 @@
           <select id="wh-end" onchange="saveWorkHours()"></select>
         </div>
       </div>
+      <div class="section-label" style="margin:16px 2px 4px">Exercises in your eye break</div>
+      <div id="ex-toggle-list"></div>
     </div>
 
-    <div class="section-label">Your routine</div>
-    <div class="card" id="ex-toggle-list"></div>
-    <div class="note" style="margin:4px 6px 20px">Turn off any exercise that doesn't apply to you — "Begin eye break" will only run the ones left on. At least one must stay on.</div>
+    <div class="section-label">Frozen shoulder</div>
+    <div class="card p-shoulder">
+      <div class="set-row">
+        <div><div class="lbl">Session reminders</div><div class="hint">Morning, afternoon and evening</div></div>
+        <button class="toggle" id="tg-sh-remind" onclick="toggleShoulderRemind(this)"></button>
+      </div>
+      <div id="sh-time-rows"></div>
+    </div>
 
-    <div class="section-label">Guidance</div>
-    <div class="card">
+    <div class="section-label">Notifications &amp; guidance</div>
+    <div class="card p-eyes">
+      <div class="set-row">
+        <div><div class="lbl">System notifications</div><div class="hint">Reminders even when Bloom is in the background</div></div>
+        <button class="toggle" id="tg-notify" onclick="toggleNotify(this)"></button>
+      </div>
       <div class="set-row">
         <div><div class="lbl">Sound cues</div><div class="hint">Gentle chime on each phase change</div></div>
         <button class="toggle" id="tg-sound" onclick="toggleSetting('sound',this)"></button>
       </div>
       <div class="set-row">
-        <div><div class="lbl">Voice guidance</div><div class="hint">Spoken steps — helpful when eyes are closed</div></div>
+        <div><div class="lbl">Voice guidance</div><div class="hint">Spoken steps, so you never need to read mid-exercise</div></div>
         <button class="toggle" id="tg-voice" onclick="toggleSetting('voice',this)"></button>
       </div>
     </div>
 
     <div class="section-label">Your data (stays on this device)</div>
-    <div class="card">
+    <div class="card p-eyes">
       <div class="set-row">
-        <div><div class="lbl">Export progress</div><div class="hint">Save a backup file to move to another device</div></div>
+        <div><div class="lbl">Export progress</div><div class="hint">Backup file to move to another device</div></div>
         <button class="pill-btn" onclick="exportData()">Export</button>
       </div>
       <div class="set-row">
@@ -305,11 +361,15 @@
         <input type="file" id="import-file" accept=".json" class="hidden" onchange="importData(this)">
       </div>
     </div>
+    <div class="note" style="margin:4px 6px">All data lives in this browser only — nothing is sent anywhere. To sync phone and PC, export on one and import on the other (imports merge, never overwrite).</div>
+  </div>
+</div>
 
-    <div class="note" style="margin:4px 6px">
-      All data lives in this browser only — nothing is sent anywhere. To keep phone and PC in sync, export from one device and import on the other now and then (imports merge, they never overwrite).
-      <br><br><b>Evidence base:</b> blink training per Contact Lens &amp; Anterior Eye (2020, 2025) clinical studies; 20-20-20 breaks per AOA/AAO guidance; palming/rest and near–far focus per standard optometric practice for asthenopia; smooth convergence per home-based convergence exercise studies. This is general wellness support, not medical treatment.
-    </div>
+<!-- ============ DETAILS SHEET ============ -->
+<div id="sheet" class="hidden">
+  <div class="inner">
+    <button class="back" onclick="closeSheet()">‹ Back</button>
+    <div id="sheet-body"></div>
   </div>
 </div>
 
@@ -317,12 +377,13 @@
 <div id="player" class="hidden">
   <div class="top">
     <div class="ex-count" id="ex-count">1 of 5</div>
-    <button class="close" onclick="closePlayer()">End break</button>
+    <button class="close" onclick="closePlayer()">End</button>
   </div>
   <h2 id="ex-title"></h2>
   <div id="ex-tag"></div>
 
   <div id="ready" class="hidden" style="text-align:center">
+    <div class="rule hidden" id="ready-rule"></div>
     <ul class="ready-steps" id="ready-steps"></ul>
     <div class="controls" style="justify-content:center">
       <button class="ctl primary" onclick="beginExercise()">I'm ready — start</button>
@@ -347,12 +408,22 @@
     </div>
   </div>
 
+  <div id="feel" class="hidden">
+    <h2>How did that feel?</h2>
+    <p>One tap — it helps you pace the stretch safely.</p>
+    <div class="feel-opts">
+      <button class="feel-btn" onclick="chooseFeel('ok')"><span class="e">😌</span><div><b>Comfortable</b><span>Gentle stretch, no real pain</span></div></button>
+      <button class="feel-btn" onclick="chooseFeel('mild')"><span class="e">😐</span><div><b>Mild discomfort</b><span>Up to about 3/10, settling down</span></div></button>
+      <button class="feel-btn" onclick="chooseFeel('pain')"><span class="e">😣</span><div><b>Too painful</b><span>Sharp, or pain that is lingering</span></div></button>
+    </div>
+  </div>
+
   <div id="celebrate" class="hidden">
-    <div class="emoji">🌿</div>
-    <h2>Break complete</h2>
+    <div class="emoji" id="celebrate-emoji">🌿</div>
+    <h2 id="celebrate-title">Done</h2>
     <p id="celebrate-sub"></p>
     <div class="controls" style="justify-content:center;margin-top:26px">
-      <button class="ctl primary" onclick="closePlayer()">Back to work</button>
+      <button class="ctl primary" onclick="closePlayer()">Back to my day</button>
     </div>
   </div>
 </div>
@@ -363,7 +434,7 @@
   <button id="tab-settings" onclick="showView('settings')"><span class="ico">⚙️</span>Settings</button>
 </nav>
 
-<div id="nudge" class="hidden">
+<div id="nudge" class="hidden p-eyes">
   <div class="box">
     <div class="eye-emoji">👁️</div>
     <h2>Your eyes need a moment</h2>
@@ -379,26 +450,22 @@
 
 <script>
 'use strict';
-/* =================================================================
-   Bloom — local eye-care companion.
-   Everything stored in localStorage; no network calls anywhere.
-   ================================================================= */
+/* Bloom — local health-routine companion. All data in localStorage; no network calls. */
 
-/* ---------- exercise definitions ----------
-   Each exercise ≈ 60s, built from timed phases.
-   visual: 'eye' | 'orb-near-far' | 'orb-converge' | 'breath' | 'gaze'  */
-const EXERCISES = [
+/* =================================================================
+   PROGRAM 1 — DRY EYE
+   ================================================================= */
+const EYE_EXERCISES = [
   {
     id:'blink', icon:'👁️', name:'Blink Reset',
     tag:'For dry eyes — restores the tear film',
-    why:'Clinically studied close–squeeze–open blink cycles',
     ready:[
       'Sit comfortably and lower your shoulders.',
       'You will close your eyes gently for 2 seconds, squeeze the lids for 2 seconds, then open for 2 seconds.',
       'Squeeze softly — cheeks relaxed, no frowning. 10 rounds.'
     ],
     visual:'eye',
-    build(){ // 10 × (close 2, squeeze 2, open 2) = 60s
+    build(){
       const p=[];
       for(let i=1;i<=10;i++){
         p.push({t:2,word:'Close',say:'Close',eye:'closed',count:`round ${i} of 10`});
@@ -412,7 +479,6 @@ const EXERCISES = [
   {
     id:'distance', icon:'🏔️', name:'Far Gaze 20·20',
     tag:'The 20-20-20 rule — releases focusing strain',
-    why:'AOA / AAO-endorsed distance-viewing break',
     ready:[
       'Turn away from the screen. Find something at least 20 feet (6 m) away — out a window is ideal.',
       'Rest your gaze on it. Don\'t stare hard; blink normally and often.',
@@ -421,9 +487,7 @@ const EXERCISES = [
     visual:'gaze',
     build(){
       const p=[];
-      for(let i=1;i<=3;i++){
-        p.push({t:20,word:'Gaze far away',say:'Look far away, and keep blinking',count:`round ${i} of 3`});
-      }
+      for(let i=1;i<=3;i++) p.push({t:20,word:'Gaze far away',say:'Look far away, and keep blinking',count:`round ${i} of 3`});
       return p;
     },
     instruction:'Pick the farthest thing you can see. Let the eyes soften — distance is rest for the focusing muscle.'
@@ -431,14 +495,13 @@ const EXERCISES = [
   {
     id:'nearfar', icon:'🔭', name:'Near–Far Focus',
     tag:'For tired eyes — trains flexible focusing',
-    why:'Accommodative facility drill for eye strain',
     ready:[
       'Hold your thumb about 25 cm (10 in) from your nose.',
       'Choose a clear object 3+ metres away, roughly behind your thumb.',
       'You will switch focus between thumb and far object — hold each until it turns sharp.'
     ],
-    visual:'orb-near-far',
-    build(){ // 10 × (near 3, far 3) = 60s
+    visual:'orb',
+    build(){
       const p=[];
       for(let i=1;i<=10;i++){
         p.push({t:3,word:'Focus near',say:'Near',orb:'near',count:`switch ${i} of 10`});
@@ -451,14 +514,13 @@ const EXERCISES = [
   {
     id:'converge', icon:'🎯', name:'Smooth Convergence',
     tag:'For the tired-eye squint — steadies eye teaming',
-    why:'Home convergence drill (pencil push-up style)',
     ready:[
       'Hold your thumb at arm\'s length at eye level. Keep it single and sharp.',
       'You will bring it slowly toward your nose over 5 seconds, stopping if it doubles, then move it slowly back out.',
       '6 slow rounds. If you feel a pulling ache, that muscle is working — but stop if anything hurts.'
     ],
-    visual:'orb-converge',
-    build(){ // 6 × (in 5, out 5) = 60s
+    visual:'orb',
+    build(){
       const p=[];
       for(let i=1;i<=6;i++){
         p.push({t:5,word:'Slowly in…',say:'Bring it slowly in',orb:'in',count:`round ${i} of 6`});
@@ -471,7 +533,6 @@ const EXERCISES = [
   {
     id:'palming', icon:'🤲', name:'Warm Palming',
     tag:'Deep rest — darkness and warmth for sore eyes',
-    why:'Classic rest technique; warmth aids the oil glands',
     ready:[
       'Rub your palms together for a few seconds until they feel warm.',
       'Cup them over your closed eyes — no pressure on the eyeballs, just gentle darkness.',
@@ -488,55 +549,142 @@ const EXERCISES = [
   }
 ];
 
-/* ---------- storage ---------- */
-const KEY='dusk-eye-care-v1';
-function load(){
-  try{ return JSON.parse(localStorage.getItem(KEY)) || {} }catch(e){ return {} }
-}
-function save(){ localStorage.setItem(KEY, JSON.stringify(DB)) }
-const DB = Object.assign({
-  sessions:[],            // {d:'2026-07-11', t:epoch, ex:['blink',...]}  one entry per completed break
-  settings:{remind:true, sound:true, voice:true, notify:false, whStart:9, whEnd:18, enabled:{}},
-  lastReminderHour:null
-}, load());
-DB.settings = Object.assign({remind:true,sound:true,voice:true,notify:false,whStart:9,whEnd:18,enabled:{}}, DB.settings);
-DB.settings.enabled = Object.assign(Object.fromEntries(EXERCISES.map(e=>[e.id,true])), DB.settings.enabled);
-function enabledExerciseIndexes(){
-  const idx = EXERCISES.map((_,i)=>i).filter(i=>DB.settings.enabled[EXERCISES[i].id]!==false);
-  return idx.length ? idx : EXERCISES.map((_,i)=>i);
-}
+/* =================================================================
+   PROGRAM 2 — FROZEN SHOULDER (left)
+   Chosen for the early, painful ("freezing") phase: movement stays
+   inside a comfortable range, because pain-limited exercise beat
+   intensive stretching past the pain threshold (Diercks & Stevens 2004).
+   ================================================================= */
+const SHOULDER_RULE = 'Stay in the comfortable zone: a mild stretch, or discomfort up to 3 out of 10, is fine. Never push into sharp pain. Any ache should settle within about 30 minutes.';
 
-const todayStr = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const SHOULDER_EXERCISES = [
+  {
+    id:'pendulum', icon:'🕰️', name:'Pendulum',
+    tag:'Relaxes the joint — movement without muscle effort',
+    ready:[
+      'Stand beside a table and rest your right hand on it.',
+      'Lean forward from the hips so your left arm hangs straight down, loose like a rope.',
+      'Don\'t lift the arm with your shoulder. Gently rock your body and let the arm simply follow: forward and back, side to side, then small circles each way. 20 seconds each.'
+    ],
+    visual:'sh-pendulum',
+    build(){
+      return [
+        {t:20,word:'Forward & back',say:'Let the arm hang loose. Rock your body gently so it swings forward and back.',anim:'sway',count:'part 1 of 4'},
+        {t:20,word:'Side to side',say:'Now side to side. Small and easy.',anim:'side',count:'part 2 of 4'},
+        {t:20,word:'Small circles',say:'Small circles, about the size of a dinner plate.',anim:'cw',count:'part 3 of 4'},
+        {t:20,word:'Circles, other way',say:'And circle the other way.',anim:'ccw',count:'part 4 of 4'}
+      ];
+    },
+    instruction:'The arm is a dead weight — your body makes the motion. Keep circles small; bigger is not better here.'
+  },
+  {
+    id:'tableslide', icon:'🪑', name:'Table Slide',
+    tag:'Restores raising the arm — your body does the work',
+    ready:[
+      'Sit facing a table. Put your left hand on a small towel on the tabletop.',
+      'Slide the hand forward by leaning your chest towards the table — the body moves, the shoulder just goes along.',
+      'Stop at a mild stretch, hold 3 seconds, then ease back. 8 slow slides.'
+    ],
+    visual:'sh-slide',
+    build(){
+      const p=[];
+      for(let i=1;i<=8;i++){
+        p.push({t:4,word:'Slide forward',say:'Slide forward',move:'out',count:`slide ${i} of 8`});
+        p.push({t:3,word:'Hold',say:'Hold',move:'hold',count:`slide ${i} of 8`});
+        p.push({t:3,word:'Ease back',say:'Ease back',move:'back',count:`slide ${i} of 8`});
+      }
+      return p;
+    },
+    instruction:'Lean, don\'t reach. Stop where you feel a gentle stretch under the arm — never a sharp pinch.'
+  },
+  {
+    id:'stickrot', icon:'☂️', name:'Stick Rotation',
+    tag:'Targets turning the arm outward — usually the stiffest direction',
+    ready:[
+      'Sit or stand holding a stick, umbrella or broom handle in both hands, palms up, elbows bent at 90 degrees.',
+      'Keep your left elbow tucked against your side. A rolled towel under the elbow helps.',
+      'Use your right hand to push the stick so your left hand swings outward. Mild stretch, hold 3 seconds, return. 8 slow reps.'
+    ],
+    visual:'sh-rotate',
+    build(){
+      const p=[];
+      for(let i=1;i<=8;i++){
+        p.push({t:4,word:'Push outward',say:'Push outward',move:'out',count:`rep ${i} of 8`});
+        p.push({t:3,word:'Hold',say:'Hold',move:'hold',count:`rep ${i} of 8`});
+        p.push({t:3,word:'Return',say:'Return',move:'back',count:`rep ${i} of 8`});
+      }
+      return p;
+    },
+    instruction:'The right arm does the pushing; the left arm stays relaxed. The left elbow never leaves your side.'
+  }
+];
+
+const PROGRAMS = {
+  eyes:{id:'eyes', name:'Dry Eye Care', exercises:EYE_EXERCISES, unit:'break'},
+  shoulder:{id:'shoulder', name:'Frozen Shoulder', exercises:SHOULDER_EXERCISES, unit:'session'}
+};
+const SLOTS = [
+  {label:'Morning',   min:5,  max:11},
+  {label:'Afternoon', min:12, max:16},
+  {label:'Evening',   min:17, max:23}
+];
+const slotOf = h => h<12 ? 0 : h<17 ? 1 : 2;
+
+/* =================================================================
+   STORAGE
+   ================================================================= */
+const KEY='dusk-eye-care-v1'; // original key kept so existing history carries over
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {} }catch(e){ return {} } }
+function save(){ localStorage.setItem(KEY, JSON.stringify(DB)) }
+const SETTINGS_DEFAULT = {remind:true, sound:true, voice:true, notify:false, whStart:9, whEnd:18, enabled:{}, shoulder:{remind:true, times:[8,14,20]}};
+const DB = Object.assign({sessions:[], lastReminderHour:null, lastShoulderReminder:null}, load());
+DB.settings = Object.assign({}, SETTINGS_DEFAULT, DB.settings);
+DB.settings.enabled = Object.assign(Object.fromEntries(EYE_EXERCISES.map(e=>[e.id,true])), DB.settings.enabled);
+DB.settings.shoulder = Object.assign({}, SETTINGS_DEFAULT.shoulder, DB.settings.shoulder);
+
+const pad2 = n => String(n).padStart(2,'0');
+const dkey = d => d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+const todayStr = () => dkey(new Date());
+const progOf = s => s.p || 'eyes';
+const sessionsOf = pid => DB.sessions.filter(s=>progOf(s)===pid);
+const todayOf = pid => sessionsOf(pid).filter(s=>s.d===todayStr());
+
+function enabledExerciseIndexes(){
+  const idx = EYE_EXERCISES.map((_,i)=>i).filter(i=>DB.settings.enabled[EYE_EXERCISES[i].id]!==false);
+  return idx.length ? idx : EYE_EXERCISES.map((_,i)=>i);
+}
+function shoulderDoneSlots(){
+  return new Set(todayOf('shoulder').map(s=>slotOf(new Date(s.t).getHours())));
+}
 
 /* ---------- streak math ---------- */
-function daysWithBreaks(){
+function dayCounts(pid){
   const m={};
-  for(const s of DB.sessions){ m[s.d]=(m[s.d]||0)+1 }
+  for(const s of sessionsOf(pid)) m[s.d]=(m[s.d]||0)+1;
   return m;
 }
-function calcStreak(){
-  const m=daysWithBreaks();
+function calcStreak(pid){
+  const m=dayCounts(pid);
   let streak=0;
   const d=new Date();
-  if(!m[todayStr()]) d.setDate(d.getDate()-1); // today not yet done doesn't break the streak
-  for(;;){
-    const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    if(m[k]){ streak++; d.setDate(d.getDate()-1) } else break;
-  }
+  if(!m[todayStr()]) d.setDate(d.getDate()-1); // today not done yet doesn't break it
+  while(m[dkey(d)]){ streak++; d.setDate(d.getDate()-1) }
   return streak;
 }
-function calcBest(){
-  const days=Object.keys(daysWithBreaks()).sort();
+function calcBest(pid){
+  const days=Object.keys(dayCounts(pid)).sort();
   let best=0,run=0,prev=null;
   for(const k of days){
     const cur=new Date(k+'T12:00');
-    run = (prev && (cur-prev)===86400000) ? run+1 : 1;
+    run = (prev && Math.round((cur-prev)/86400000)===1) ? run+1 : 1;
     best=Math.max(best,run); prev=cur;
   }
   return best;
 }
 
-/* ---------- audio ---------- */
+/* =================================================================
+   AUDIO + VOICE
+   ================================================================= */
 let actx=null;
 function chime(freq=740,dur=.22,gain=.06){
   if(!DB.settings.sound) return;
@@ -556,12 +704,14 @@ function speak(text){
   try{
     speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(text);
-    u.rate=.95; u.pitch=1; u.volume=.9;
+    u.rate=.95; u.volume=.9;
     speechSynthesis.speak(u);
   }catch(e){}
 }
 
-/* ---------- views ---------- */
+/* =================================================================
+   VIEWS
+   ================================================================= */
 function showView(v){
   for(const x of ['home','progress','settings']){
     document.getElementById('view-'+x).classList.toggle('hidden', x!==v);
@@ -573,63 +723,129 @@ function showView(v){
 }
 
 function renderHome(){
-  const streak=calcStreak();
-  document.getElementById('streak-n').textContent=streak;
-  document.getElementById('flame').textContent = streak>=7?'🔥':streak>=3?'✨':streak>=1?'🌱':'🌑';
-  const todayCount=DB.sessions.filter(s=>s.d===todayStr()).length;
-  document.getElementById('today-sub').innerHTML =
-    todayCount ? `<b>${todayCount}</b> break${todayCount>1?'s':''} completed today` : 'No sessions yet today';
+  const h=new Date().getHours();
+  const hello = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  const eyesN=todayOf('eyes').length, shN=shoulderDoneSlots().size;
+  document.getElementById('greet').textContent =
+    `${hello}. Today: ${eyesN} eye break${eyesN===1?'':'s'} · ${shN} of 3 shoulder sessions.`;
+  renderEyesCard();
+  renderShoulderCard();
+}
 
-  const activeCount = enabledExerciseIndexes().length;
-  document.getElementById('start-btn-sub').textContent =
-    `${activeCount} guided exercise${activeCount>1?'s':''} · about ${activeCount} minute${activeCount>1?'s':''}`;
-
-  // hour ribbon
+function renderEyesCard(){
+  document.getElementById('eyes-streak').textContent=calcStreak('eyes');
+  const n=enabledExerciseIndexes().length;
+  document.getElementById('eyes-start-sub').textContent=`${n} exercise${n>1?'s':''} · about ${n} minute${n>1?'s':''}`;
   const {whStart,whEnd}=DB.settings;
-  const hoursDone=new Set(DB.sessions.filter(s=>s.d===todayStr()).map(s=>new Date(s.t).getHours()));
+  const done=new Set(todayOf('eyes').map(s=>new Date(s.t).getHours()));
   const nowH=new Date().getHours();
   let html='';
-  for(let h=whStart;h<whEnd;h++){
-    html+=`<div class="h ${hoursDone.has(h)?'done':''} ${h===nowH?'now':''}">${h}</div>`;
-  }
-  document.getElementById('hours').innerHTML=html||'<div class="note">Set working hours in Settings</div>';
-
-  // exercise list
-  const doneToday=new Set();
-  DB.sessions.filter(s=>s.d===todayStr()).forEach(s=>(s.ex||[]).forEach(e=>doneToday.add(e)));
-  document.getElementById('ex-list').innerHTML = EXERCISES.map((e,i)=>{
-    const off = DB.settings.enabled[e.id]===false;
-    return `
-    <div class="ex-row" style="${off?'opacity:.45':''}">
-      <div class="ex-icon">${e.icon}</div>
-      <div><div class="name">${e.name}${off?' <span style=\'font-size:11px;color:var(--faint)\'>(off)</span>':''}</div><div class="why">${e.tag}</div></div>
-      ${doneToday.has(e.id)?'<div class="done-mark">✓</div>':`<button class="play" onclick="startRoutine(${i})">1 min</button>`}
-    </div>`;
-  }).join('');
-
-  renderReminderCard();
+  for(let h=whStart;h<whEnd;h++) html+=`<div class="h ${done.has(h)?'done':''} ${h===nowH?'now':''}">${h}</div>`;
+  document.getElementById('hours').innerHTML=html;
+  renderEyesStatus();
 }
-
-function renderReminderCard(){
-  const el=document.getElementById('reminder-card'), txt=document.getElementById('reminder-text');
-  if(!DB.settings.remind){ el.classList.remove('due'); txt.textContent='Hourly reminders are off — enable in Settings'; return }
+function renderEyesStatus(){
+  const el=document.getElementById('eyes-status'), txt=document.getElementById('eyes-status-text');
+  el.classList.remove('due');
+  if(!DB.settings.remind){ txt.textContent='Hourly reminders are off — turn on in Settings'; return }
   const now=new Date(), h=now.getHours();
-  const inHours = h>=DB.settings.whStart && h<DB.settings.whEnd;
-  const doneThisHour = DB.sessions.some(s=>s.d===todayStr() && new Date(s.t).getHours()===h);
-  if(!inHours){ el.classList.remove('due'); txt.textContent='Outside working hours — reminders resume tomorrow'; }
-  else if(doneThisHour){
-    el.classList.remove('due');
-    const mins=60-now.getMinutes();
-    txt.innerHTML=`This hour is done ✓ — next break in about <b>${mins} min</b>`;
+  if(h<DB.settings.whStart || h>=DB.settings.whEnd){ txt.textContent='Outside working hours — reminders resume next work hour'; return }
+  if(todayOf('eyes').some(s=>new Date(s.t).getHours()===h)){
+    txt.innerHTML=`This hour is done ✓ — next break in about <b>${60-now.getMinutes()} min</b>`;
   } else {
     el.classList.add('due');
-    txt.textContent='An eye break is due this hour — your eyes will thank you';
+    txt.textContent='An eye break is due this hour';
   }
 }
 
-/* ---------- mirror reminder-relevant state to IndexedDB ----------
-   The service worker can't read localStorage, so periodicsync needs
-   this tiny mirror to decide whether a background reminder is due. */
+function renderShoulderCard(){
+  document.getElementById('sh-streak').textContent=calcStreak('shoulder');
+  const done=shoulderDoneSlots();
+  const times=DB.settings.shoulder.times;
+  const now=new Date(), h=now.getHours(), cur=slotOf(h);
+  document.getElementById('sh-slots').innerHTML = SLOTS.map((s,i)=>{
+    const due = !done.has(i) && i===cur && h>=times[i];
+    return `<div class="slot ${done.has(i)?'done':''} ${due?'due':''}"><b>${done.has(i)?'✓ ':''}${s.label}</b>${times[i]}:00</div>`;
+  }).join('');
+
+  const el=document.getElementById('sh-status'), txt=document.getElementById('sh-status-text');
+  el.classList.remove('due');
+  const count=done.size;
+  if(count===3){ txt.textContent='All 3 sessions done today — that consistency is what loosens a frozen shoulder'; }
+  else if(!done.has(cur) && h>=times[cur]){ el.classList.add('due'); txt.textContent=`Your ${SLOTS[cur].label.toLowerCase()} session is due now`; }
+  else {
+    const next=[0,1,2].find(i=>!done.has(i) && (i>cur || (i===cur && h<times[i])));
+    txt.innerHTML = next===undefined
+      ? `<b>${count}</b> of 3 done today — tomorrow is a fresh start`
+      : `<b>${count}</b> of 3 done · next: ${SLOTS[next].label.toLowerCase()} at ${times[next]}:00`;
+  }
+
+  const recent=sessionsOf('shoulder').filter(s=>s.feel).slice(-3);
+  const painful=recent.filter(s=>s.feel==='pain').length;
+  const warn=document.getElementById('sh-warn');
+  if(painful>=2){
+    warn.textContent=`${painful} of your last 3 sessions felt too painful. Use a smaller range next time. If pain keeps rising, or night pain worsens, check in with your doctor or physio.`;
+    warn.classList.remove('hidden');
+  } else warn.classList.add('hidden');
+}
+
+/* =================================================================
+   DETAILS SHEET
+   ================================================================= */
+function exerciseRows(pid){
+  const doneToday=new Set();
+  todayOf(pid).forEach(s=>(s.ex||[]).forEach(e=>doneToday.add(e)));
+  return PROGRAMS[pid].exercises.map((e,i)=>{
+    const off = pid==='eyes' && DB.settings.enabled[e.id]===false;
+    return `<div class="ex-row" style="${off?'opacity:.45':''}">
+      <div class="ex-icon">${e.icon}</div>
+      <div><div class="name">${e.name}${off?' <span style="font-size:11px;color:var(--faint)">(off)</span>':''}</div><div class="why">${e.tag}</div></div>
+      ${doneToday.has(e.id)?'<div class="done-mark">✓</div>':`<button class="play" onclick="closeSheet();startRoutine('${pid}',${i})">Try</button>`}
+    </div>`;
+  }).join('');
+}
+function openSheet(pid){
+  const body = pid==='eyes' ? `
+    <div class="sheet-title">Dry Eye Care</div>
+    <div class="sheet-sub">One short break every working hour.</div>
+    <div class="card" style="padding:8px 16px">${exerciseRows('eyes')}</div>
+    <div class="info"><h3>How often</h3>One break per working hour, about 1 minute per exercise. Turn exercises on or off in Settings to fit your break.</div>
+    <div class="info"><h3>Why these work</h3><ul>
+      <li><b>Blink Reset</b> — close–squeeze–open blink training improved dry-eye symptoms and tear-film stability in clinical studies (Contact Lens &amp; Anterior Eye, 2020 and 2025).</li>
+      <li><b>Far Gaze</b> — the 20-20-20 break recommended by the AOA and AAO.</li>
+      <li><b>Near–Far Focus</b> and <b>Smooth Convergence</b> — standard optometric drills for focusing and eye-teaming fatigue.</li>
+      <li><b>Warm Palming</b> — rest and warmth, which supports the eyelid oil glands.</li></ul></div>
+    <div class="info accent">With severe dry eye (a Schirmer score of 1–3), these exercises add to your prescribed drops and treatment — they never replace them. Show this routine to your eye doctor.</div>`
+  : `
+    <div class="sheet-title">Frozen Shoulder · Left</div>
+    <div class="sheet-sub">Three gentle exercises, three times a day.</div>
+    <div class="card" style="padding:8px 16px">${exerciseRows('shoulder')}</div>
+    <div class="info accent"><h3>The comfort rule</h3><ul>
+      <li>Move to a <b>mild stretch</b>. Discomfort up to about <b>3 out of 10</b> is fine.</li>
+      <li><b>Never push into sharp pain.</b> Forcing it does not speed things up.</li>
+      <li>Any ache should settle within <b>30 minutes</b>. If you're still worse the next morning, use a smaller range next time.</li></ul></div>
+    <div class="info"><h3>How often</h3><b>Morning, afternoon and evening</b> — about 5 minutes each, every day. With a stiff shoulder, little and often works far better than one long session. The 3 time slots and reminders are set in Settings.</div>
+    <div class="info"><h3>Why these three</h3><ul>
+      <li><b>Pendulum</b> — gravity gently separates the joint while the muscles stay relaxed. It's a core part of the pain-limited approach that outperformed intensive stretching at 2 years (Diercks &amp; Stevens, 2004).</li>
+      <li><b>Table Slide</b> — the gentlest way to work on raising the arm. Leaning your body does the lifting, so the painful capsule isn't strained.</li>
+      <li><b>Stick Rotation</b> — turning the arm outward is usually the stiffest and most limited movement in frozen shoulder. Clinical guidelines prioritise stretching it, dosed to your pain level (Kelley et al., JOSPT 2013).</li></ul></div>
+    <div class="info"><h3>As it improves</h3>When pain settles, your physiotherapist may lengthen the holds (to 15–30 seconds) and add directions such as reaching behind your back. Follow their lead. This app gives you the steady daily base.</div>
+    <div class="info"><h3>Call your doctor if</h3><ul>
+      <li>pain is steadily getting worse, or night pain is disrupting sleep more and more</li>
+      <li>you notice new numbness, tingling, or weakness in the arm or hand</li>
+      <li>the shoulder becomes red, hot or swollen, or you get a fever</li>
+      <li>there's no improvement at all after about 6 weeks of steady practice</li></ul></div>
+    <div class="note">General guidance to support the physiotherapy your orthopaedic doctor prescribed — check these exercises with your physio, who can tailor the range to you.</div>`;
+  document.getElementById('sheet-body').innerHTML=body;
+  const sheet=document.getElementById('sheet');
+  sheet.className='p-'+pid;
+  sheet.scrollTop=0;
+}
+function closeSheet(){ document.getElementById('sheet').classList.add('hidden') }
+
+/* =================================================================
+   REMINDER STATE MIRROR (for the service worker, which can't read localStorage)
+   ================================================================= */
 function idbOpen(){
   return new Promise((resolve,reject)=>{
     const req=indexedDB.open('bloom-eye-care-idb',1);
@@ -642,14 +858,17 @@ async function mirrorReminderState(){
   if(!('indexedDB' in window)) return;
   try{
     const db=await idbOpen();
-    const doneHours=[...new Set(DB.sessions.filter(s=>s.d===todayStr()).map(s=>new Date(s.t).getHours()))];
+    const doneHours=[...new Set(todayOf('eyes').map(s=>new Date(s.t).getHours()))];
     await new Promise((resolve,reject)=>{
       const tx=db.transaction('state','readwrite');
-      tx.objectStore('state').put({remind:DB.settings.remind, whStart:DB.settings.whStart, whEnd:DB.settings.whEnd, today:todayStr(), doneHours}, 'reminder');
+      tx.objectStore('state').put({
+        remind:DB.settings.remind, whStart:DB.settings.whStart, whEnd:DB.settings.whEnd, today:todayStr(), doneHours,
+        sRemind:DB.settings.shoulder.remind, sTimes:DB.settings.shoulder.times, sDoneSlots:[...shoulderDoneSlots()]
+      }, 'reminder');
       tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
     });
     db.close();
-  }catch(e){ /* background reminders degrade gracefully; in-page reminders still work */ }
+  }catch(e){}
 }
 
 /* ---------- PWA install + service worker ---------- */
@@ -669,7 +888,7 @@ async function installApp(){
   const choice=await deferredInstallPrompt.userChoice;
   deferredInstallPrompt=null;
   document.getElementById('install-row').classList.add('hidden');
-  if(choice.outcome==='accepted') toast('Installed — look for Bloom on your home screen or taskbar');
+  if(choice.outcome==='accepted') toast('Installed — look for Bloom on your taskbar or home screen');
 }
 async function registerServiceWorker(){
   if(!('serviceWorker' in navigator)) return;
@@ -679,84 +898,107 @@ async function registerServiceWorker(){
     if('periodicSync' in reg){
       try{
         const status=await navigator.permissions.query({name:'periodic-background-sync'});
-        if(status.state==='granted'){
-          await reg.periodicSync.register('bloom-reminder-check', {minInterval:60*60*1000});
-        }
-      }catch(e){ /* periodic background sync unsupported or not yet granted — normal on first use */ }
+        if(status.state==='granted') await reg.periodicSync.register('bloom-reminder-check',{minInterval:60*60*1000});
+      }catch(e){}
     }
   }catch(e){}
 }
 
-/* ---------- hourly reminder engine ---------- */
-function tickReminder(){
-  document.getElementById('clock').textContent =
-    new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  if(!DB.settings.remind) return;
-  const now=new Date(), h=now.getHours();
-  if(h<DB.settings.whStart||h>=DB.settings.whEnd) return;
-  const doneThisHour = DB.sessions.some(s=>s.d===todayStr() && new Date(s.t).getHours()===h);
-  const hourKey=todayStr()+'-'+h;
-  if(!doneThisHour && now.getMinutes()>=0 && DB.lastReminderHour!==hourKey){
-    DB.lastReminderHour=hourKey; save();
-    toast('👁️ Time for your hourly eye break');
-    chime(660,.3); setTimeout(()=>chime(880,.3),350);
-    if(DB.settings.notify && 'Notification' in window && Notification.permission==='granted'){
-      try{ new Notification('Bloom — eye break time', {body:'5 gentle exercises, 5 minutes. Your eyes have earned it.', tag:'bloom-reminder'}) }catch(e){}
-    }
+/* =================================================================
+   REMINDER ENGINE (runs every 30s while open)
+   ================================================================= */
+function notify(title, body, tag){
+  if(DB.settings.notify && 'Notification' in window && Notification.permission==='granted'){
+    try{ new Notification(title,{body, tag, icon:'icon-192.png'}) }catch(e){}
   }
-  if(!document.getElementById('view-home').classList.contains('hidden')) renderReminderCard();
+}
+function tickEyes(now){
+  if(!DB.settings.remind) return;
+  const h=now.getHours();
+  if(h<DB.settings.whStart||h>=DB.settings.whEnd) return;
+  if(todayOf('eyes').some(s=>new Date(s.t).getHours()===h)) return;
+  const k=todayStr()+'-'+h;
+  if(DB.lastReminderHour===k) return;
+  DB.lastReminderHour=k; save();
+  toast('👁️ Time for your hourly eye break');
+  chime(660,.3); setTimeout(()=>chime(880,.3),350);
+  notify('Bloom — eye break time','Five gentle exercises, about five minutes.','bloom-reminder');
+}
+function tickShoulder(now){
+  const sh=DB.settings.shoulder;
+  if(!sh.remind) return;
+  const h=now.getHours(), i=slotOf(h);
+  if(h<sh.times[i] || shoulderDoneSlots().has(i)) return;
+  const k=todayStr()+'-'+i;
+  if(DB.lastShoulderReminder===k) return;
+  DB.lastShoulderReminder=k; save();
+  toast(`🌀 Time for your ${SLOTS[i].label.toLowerCase()} shoulder session`);
+  chime(520,.3); setTimeout(()=>chime(700,.3),350);
+  notify('Bloom — shoulder session',`Your ${SLOTS[i].label.toLowerCase()} session: 3 gentle exercises, about 5 minutes.`,'bloom-shoulder');
+}
+function tickReminder(){
+  const now=new Date();
+  document.getElementById('clock').textContent=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  tickEyes(now);
+  tickShoulder(now);
+  if(!document.getElementById('view-home').classList.contains('hidden')) renderHome();
   mirrorReminderState();
 }
-setInterval(tickReminder, 30000);
-document.addEventListener('visibilitychange', ()=>{
+setInterval(tickReminder,30000);
+document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState==='visible'){ tickReminder(); tickNudge(); }
 });
 
-/* ---------- 2-hour nudge popup ---------- */
-const NUDGE_MS = 2*60*60*1000;
-let lastNudgeReset = Date.now();
+/* ---------- 2-hour eye nudge ---------- */
+const NUDGE_MS=2*60*60*1000;
+let lastNudgeReset=Date.now();
 function tickNudge(){
-  const playerOpen = !document.getElementById('player').classList.contains('hidden');
-  const nudgeOpen = !document.getElementById('nudge').classList.contains('hidden');
-  if(playerOpen || nudgeOpen) return;
-  if(Date.now() - lastNudgeReset >= NUDGE_MS){
+  const playerOpen=!document.getElementById('player').classList.contains('hidden');
+  const nudgeOpen=!document.getElementById('nudge').classList.contains('hidden');
+  if(playerOpen||nudgeOpen) return;
+  if(Date.now()-lastNudgeReset>=NUDGE_MS){
     document.getElementById('nudge').classList.remove('hidden');
     chime(660,.3); setTimeout(()=>chime(880,.3),350);
   }
 }
-setInterval(tickNudge, 60000);
-function dismissNudge(){
-  lastNudgeReset = Date.now();
-  document.getElementById('nudge').classList.add('hidden');
-}
-function nudgeStart(){
-  dismissNudge();
-  startRoutine();
-}
+setInterval(tickNudge,60000);
+function dismissNudge(){ lastNudgeReset=Date.now(); document.getElementById('nudge').classList.add('hidden') }
+function nudgeStart(){ dismissNudge(); startRoutine('eyes') }
 
-/* ---------- player ---------- */
-let queue=[], qi=0, phases=[], pi=0, remain=0, timer=null, paused=false, completedIds=[];
+/* =================================================================
+   PLAYER
+   ================================================================= */
+let prog=null, queue=[], qi=0, phases=[], pi=0, remain=0, timer=null, paused=false, completedIds=[];
+let phaseStartPerf=0, pausedAt=0;
 
-function startRoutine(onlyIndex){
-  queue = (typeof onlyIndex==='number') ? [onlyIndex] : enabledExerciseIndexes();
+function startRoutine(pid, onlyIndex){
+  prog=PROGRAMS[pid];
+  queue = (typeof onlyIndex==='number') ? [onlyIndex]
+        : pid==='eyes' ? enabledExerciseIndexes() : prog.exercises.map((_,i)=>i);
   qi=0; completedIds=[];
-  document.getElementById('player').classList.remove('hidden');
-  document.getElementById('celebrate').classList.add('hidden');
-  chime(520,.2); // unlock audio on user gesture
+  const pl=document.getElementById('player');
+  pl.className='p-'+pid;
+  for(const id of ['celebrate','feel','running']) document.getElementById(id).classList.add('hidden');
+  chime(520,.2); // unlocks audio on the user's tap
   loadExercise();
 }
 function loadExercise(){
-  const ex=EXERCISES[queue[qi]];
+  const ex=prog.exercises[queue[qi]];
   document.getElementById('ex-count').textContent=`${qi+1} of ${queue.length}`;
   document.getElementById('ex-title').textContent=ex.name;
   document.getElementById('ex-tag').textContent=ex.tag;
   document.getElementById('running').classList.add('hidden');
   document.getElementById('ready').classList.remove('hidden');
   document.getElementById('ready-steps').innerHTML=ex.ready.map(s=>`<li>${s}</li>`).join('');
-  speak(ex.name+'. '+ex.ready.join(' ')+' Press start when you are ready.');
+  const rule=document.getElementById('ready-rule');
+  const isShoulder=prog.id==='shoulder';
+  rule.classList.toggle('hidden',!isShoulder);
+  if(isShoulder) rule.innerHTML='<b>Comfort rule:</b> '+SHOULDER_RULE;
+  const intro = (isShoulder && qi===0) ? 'Before we start. '+SHOULDER_RULE+' ' : '';
+  speak(intro+ex.name+'. '+ex.ready.join(' ')+' Press start when you are ready.');
 }
 function beginExercise(){
-  const ex=EXERCISES[queue[qi]];
+  const ex=prog.exercises[queue[qi]];
   phases=ex.build(); pi=0; paused=false;
   document.getElementById('ready').classList.add('hidden');
   document.getElementById('running').classList.remove('hidden');
@@ -765,44 +1007,149 @@ function beginExercise(){
   setupVisual(ex.visual);
   startPhase();
 }
+
+/* ---------- eye visuals ---------- */
 function setupVisual(kind){
+  stopShoulderAnim();
   const v=document.getElementById('visual');
   if(kind==='eye'){
     v.innerHTML=`<svg class="eye" viewBox="0 0 120 70">
-      <path id="lid-top" d="M10 35 Q60 -8 110 35" fill="none" stroke="var(--amber2)" stroke-width="3.5" stroke-linecap="round" style="transition:.45s"/>
-      <path id="lid-bot" d="M10 35 Q60 78 110 35" fill="none" stroke="var(--amber2)" stroke-width="3.5" stroke-linecap="round" style="transition:.45s"/>
+      <path id="lid-top" d="M10 35 Q60 -8 110 35" fill="none" stroke="var(--acc2)" stroke-width="3.5" stroke-linecap="round" style="transition:.45s"/>
+      <path id="lid-bot" d="M10 35 Q60 78 110 35" fill="none" stroke="var(--acc2)" stroke-width="3.5" stroke-linecap="round" style="transition:.45s"/>
       <circle id="iris" cx="60" cy="35" r="14" fill="none" stroke="var(--sage)" stroke-width="3" style="transition:.45s"/>
       <circle id="pupil" cx="60" cy="35" r="5.5" fill="var(--sage2)" style="transition:.45s"/>
     </svg>`;
   } else if(kind==='breath'){
-    v.innerHTML=`<div class="breath"></div>`;
+    v.innerHTML='<div class="breath"></div>';
   } else if(kind==='gaze'){
-    v.innerHTML=`<div style="text-align:center"><div style="font-size:44px">🏔️</div><div style="font-size:12px;color:var(--faint);margin-top:6px">20 feet / 6 m away</div></div>`;
+    v.innerHTML='<div style="text-align:center"><div style="font-size:44px">🏔️</div><div style="font-size:12px;color:var(--faint);margin-top:6px">20 feet / 6 m away</div></div>';
+  } else if(kind==='orb'){
+    v.innerHTML='<div class="orb" id="orb"></div>';
   } else {
-    v.innerHTML=`<div class="orb" id="orb"></div>`;
+    v.innerHTML=SHOULDER_FIGS[kind];
+    startShoulderAnim(kind);
   }
 }
 function setEye(state){
   const t=document.getElementById('lid-top'), b=document.getElementById('lid-bot');
-  const iris=document.getElementById('iris'), pupil=document.getElementById('pupil');
   if(!t) return;
-  const show = state==='open';
-  iris.style.opacity = pupil.style.opacity = show?1:0;
+  const show=state==='open';
+  document.getElementById('iris').style.opacity=document.getElementById('pupil').style.opacity=show?1:0;
   if(state==='open'){ t.setAttribute('d','M10 35 Q60 -8 110 35'); b.setAttribute('d','M10 35 Q60 78 110 35') }
   if(state==='closed'){ t.setAttribute('d','M10 35 Q60 33 110 35'); b.setAttribute('d','M10 35 Q60 37 110 35') }
   if(state==='squeeze'){ t.setAttribute('d','M14 36 Q60 28 106 36'); b.setAttribute('d','M14 34 Q60 42 106 34') }
 }
 function setOrb(state,dur){
   const o=document.getElementById('orb'); if(!o) return;
-  o.style.transitionDuration=(dur||2.8)+'s, '+(dur||2.8)+'s, .5s, .5s';
+  o.style.transitionDuration=dur+'s, '+dur+'s, .5s, .5s';
   if(state==='near'){ o.classList.remove('small'); o.style.transform='scale(1.35)' }
   if(state==='far'){ o.classList.add('small'); o.style.transform='scale(.55)' }
   if(state==='in'){ o.classList.remove('small'); o.style.transform='scale(1.8)' }
   if(state==='out'){ o.classList.remove('small'); o.style.transform='scale(.7)' }
 }
+
+/* ---------- shoulder figures: the left (affected) arm is highlighted ---------- */
+const SHOULDER_FIGS = {
+  'sh-pendulum':`<svg class="fig" viewBox="0 0 200 200">
+    <line class="prop" x1="8" y1="184" x2="192" y2="184" style="stroke:var(--line)"/>
+    <line class="prop" x1="130" y1="112" x2="194" y2="112"/><line class="prop" x1="188" y1="112" x2="188" y2="182"/><line class="prop" x1="136" y1="112" x2="136" y2="182"/>
+    <line class="b" x1="64" y1="104" x2="58" y2="182"/><line class="b" x1="64" y1="104" x2="74" y2="182"/>
+    <line class="b" x1="64" y1="104" x2="116" y2="82"/>
+    <circle class="head" cx="131" cy="73" r="10"/>
+    <line class="b" x1="114" y1="84" x2="146" y2="110" style="opacity:.6"/>
+    <path id="pd-guide" class="guide"/>
+    <line id="pd-arm" class="aff" x1="116" y1="84" x2="116" y2="142"/>
+    <circle id="pd-hand" class="hand" cx="116" cy="142" r="5"/>
+    <text class="lbl" x="6" y="132">LEFT ARM</text>
+  </svg>`,
+  'sh-slide':`<svg class="fig" viewBox="0 0 200 200">
+    <line class="prop" x1="8" y1="184" x2="192" y2="184" style="stroke:var(--line)"/>
+    <line class="prop" x1="34" y1="134" x2="76" y2="134"/><line class="prop" x1="34" y1="134" x2="34" y2="86"/>
+    <line class="prop" x1="38" y1="134" x2="38" y2="182"/><line class="prop" x1="72" y1="134" x2="72" y2="182"/>
+    <line class="prop" x1="104" y1="112" x2="196" y2="112"/><line class="prop" x1="190" y1="112" x2="190" y2="182"/>
+    <line class="b" x1="58" y1="130" x2="98" y2="132"/><line class="b" x1="98" y1="132" x2="98" y2="180"/>
+    <line id="sl-torso" class="b" x1="58" y1="130" x2="64" y2="82"/>
+    <circle id="sl-head" class="head" cx="72" cy="67" r="10"/>
+    <path class="guide" d="M126 100 H182 M176 95 L182 100 L176 105"/>
+    <rect id="sl-towel" class="towel" x="118" y="108" width="22" height="4" rx="2"/>
+    <line id="sl-arm" class="aff" x1="64" y1="82" x2="128" y2="106"/>
+    <circle id="sl-hand" class="hand" cx="128" cy="106" r="5"/>
+    <text class="lbl" x="122" y="128">LEFT HAND</text>
+  </svg>`,
+  'sh-rotate':`<svg class="fig" viewBox="0 0 200 200">
+    <circle class="head" cx="100" cy="38" r="12"/>
+    <line class="b" x1="100" y1="50" x2="100" y2="128"/>
+    <line class="b" x1="76" y1="64" x2="124" y2="64"/>
+    <line class="b" x1="100" y1="128" x2="88" y2="182"/><line class="b" x1="100" y1="128" x2="112" y2="182"/>
+    <line class="b" x1="76" y1="64" x2="78" y2="104"/>
+    <line class="aff" x1="124" y1="64" x2="122" y2="104"/>
+    <ellipse class="towel" cx="129" cy="98" rx="4" ry="7"/>
+    <path class="guide" d="M112 124 Q140 130 160 108 M152 108 L160 108 L160 116"/>
+    <line id="rt-stick" class="stick" x1="84" y1="116" x2="116" y2="116"/>
+    <line id="rt-rfore" class="b" x1="78" y1="104" x2="90" y2="116"/>
+    <line id="rt-lfore" class="aff" x1="122" y1="104" x2="110" y2="116"/>
+    <circle id="rt-rhand" class="hand" cx="90" cy="116" r="4.5" style="fill:#7d7062"/>
+    <circle id="rt-lhand" class="hand" cx="110" cy="116" r="4.5"/>
+    <text class="lbl" x="134" y="78">YOUR LEFT</text>
+  </svg>`
+};
+let shKind=null, shRaf=0;
+const ease = x => .5-.5*Math.cos(Math.PI*Math.min(1,Math.max(0,x)));
+const lerp = (a,b,p) => a+(b-a)*p;
+function setAttrs(id, attrs){ const el=document.getElementById(id); if(el) for(const k in attrs) el.setAttribute(k,attrs[k]) }
+function startShoulderAnim(kind){ shKind=kind; shRaf=requestAnimationFrame(shoulderFrame) }
+function stopShoulderAnim(){ shKind=null; cancelAnimationFrame(shRaf) }
+function movePos(){
+  const ph=phases[pi]; if(!ph) return 0;
+  const x=((paused?pausedAt:performance.now())-phaseStartPerf)/(ph.t*1000);
+  return ph.move==='out' ? ease(x) : ph.move==='hold' ? 1 : 1-ease(x);
+}
+function shoulderFrame(now){
+  if(!shKind) return;
+  const ph=phases[pi]||{};
+  if(shKind==='sh-pendulum'){
+    const t=(paused?pausedAt:now)/1000, S={x:116,y:84}, L=58;
+    let hx, hy, r=5, guide;
+    if(ph.anim==='sway'){
+      const a=.3*Math.sin(2*Math.PI*t/2.6);
+      hx=S.x+L*Math.sin(a); hy=S.y+L*Math.cos(a);
+      guide='M99 138 Q116 146 133 138';
+    } else if(ph.anim==='side'){
+      const s=Math.sin(2*Math.PI*t/2.6);
+      hx=S.x+3*s; hy=S.y+L; r=5+1.8*s;
+      guide='M108 142 A8 3 0 1 0 124 142 A8 3 0 1 0 108 142';
+    } else {
+      const dir=ph.anim==='ccw'?-1:1, th=dir*2*Math.PI*t/3;
+      hx=S.x+15*Math.cos(th); hy=S.y+L-2+5*Math.sin(th);
+      guide='M101 140 A15 5 0 1 0 131 140 A15 5 0 1 0 101 140';
+    }
+    setAttrs('pd-arm',{x2:hx.toFixed(1),y2:hy.toFixed(1)});
+    setAttrs('pd-hand',{cx:hx.toFixed(1),cy:hy.toFixed(1),r:r.toFixed(1)});
+    setAttrs('pd-guide',{d:guide});
+  } else if(shKind==='sh-slide'){
+    const p=movePos();
+    const sx=lerp(64,92,p), sy=lerp(82,97,p), hx=lerp(128,176,p);
+    setAttrs('sl-torso',{x2:sx,y2:sy});
+    setAttrs('sl-head',{cx:sx+lerp(8,14,p),cy:sy-lerp(15,11,p)});
+    setAttrs('sl-arm',{x1:sx,y1:sy,x2:hx});
+    setAttrs('sl-hand',{cx:hx});
+    setAttrs('sl-towel',{x:hx-11});
+  } else if(shKind==='sh-rotate'){
+    const p=movePos();
+    const lx=lerp(110,156,p), ly=lerp(116,108,p), rx=lerp(90,128,p), ry=lerp(116,114,p);
+    const dx=lx-rx, dy=ly-ry, len=Math.hypot(dx,dy)||1, ux=dx/len*8, uy=dy/len*8;
+    setAttrs('rt-lfore',{x2:lx,y2:ly}); setAttrs('rt-lhand',{cx:lx,cy:ly});
+    setAttrs('rt-rfore',{x2:rx,y2:ry}); setAttrs('rt-rhand',{cx:rx,cy:ry});
+    setAttrs('rt-stick',{x1:rx-ux,y1:ry-uy,x2:lx+ux,y2:ly+uy});
+  }
+  shRaf=requestAnimationFrame(shoulderFrame);
+}
+
+/* ---------- phase engine ---------- */
 function startPhase(){
   const ph=phases[pi];
   remain=ph.t;
+  phaseStartPerf=performance.now();
   const total=phases.reduce((a,p)=>a+p.t,0);
   const elapsed=phases.slice(0,pi).reduce((a,p)=>a+p.t,0);
   updateRing(elapsed,total);
@@ -816,9 +1163,9 @@ function startPhase(){
   timer=setInterval(()=>{
     if(paused) return;
     remain--;
-    const ph2=phases[pi];
-    document.getElementById('phase-count').textContent=(ph2.count||'')+(ph2.t>4?` · ${Math.max(remain,0)}s`:'');
-    updateRing(elapsed+(ph2.t-remain),total);
+    const cur=phases[pi];
+    document.getElementById('phase-count').textContent=(cur.count||'')+(cur.t>4?` · ${Math.max(remain,0)}s`:'');
+    updateRing(elapsed+(cur.t-remain),total);
     if(remain<=0){
       pi++;
       if(pi>=phases.length){ clearInterval(timer); finishExercise() }
@@ -827,86 +1174,127 @@ function startPhase(){
   },1000);
 }
 function updateRing(done,total){
-  const C=2*Math.PI*46;
-  const r=document.getElementById('ring');
+  const C=2*Math.PI*46, r=document.getElementById('ring');
   r.style.strokeDasharray=C;
   r.style.strokeDashoffset=C*(1-done/total);
 }
 function togglePause(){
   paused=!paused;
+  if(paused){ pausedAt=performance.now(); if('speechSynthesis' in window) speechSynthesis.cancel() }
+  else phaseStartPerf+=performance.now()-pausedAt;
   document.getElementById('pause-btn').textContent=paused?'Resume':'Pause';
-  if(paused) speechSynthesis && speechSynthesis.cancel();
 }
 function finishExercise(){
-  completedIds.push(EXERCISES[queue[qi]].id);
+  completedIds.push(prog.exercises[queue[qi]].id);
   chime(660,.25); setTimeout(()=>chime(990,.35),260);
   nextInQueue();
 }
 function skipExercise(){ clearInterval(timer); nextInQueue() }
 function nextInQueue(){
   qi++;
-  if(qi<queue.length){ loadExercise() }
+  if(qi<queue.length) loadExercise();
   else endRoutine();
 }
+function recordSession(feel){
+  const s={d:todayStr(), t:Date.now(), ex:completedIds, p:prog.id};
+  if(feel) s.feel=feel;
+  DB.sessions.push(s);
+  save();
+  completedIds=[];
+  if(prog.id==='eyes') lastNudgeReset=Date.now();
+  mirrorReminderState();
+}
 function endRoutine(){
-  clearInterval(timer);
+  clearInterval(timer); stopShoulderAnim();
   document.getElementById('ready').classList.add('hidden');
   document.getElementById('running').classList.add('hidden');
-  if(completedIds.length){
-    DB.sessions.push({d:todayStr(), t:Date.now(), ex:completedIds});
-    save();
-    mirrorReminderState();
-    lastNudgeReset = Date.now();
-    const streak=calcStreak();
-    document.getElementById('celebrate-sub').textContent =
-      `${completedIds.length} exercise${completedIds.length>1?'s':''} done · ${streak} day streak 🔥`;
-    document.getElementById('celebrate').classList.remove('hidden');
-    speak('Well done. Break complete.');
-  } else { closePlayer() }
+  if(!completedIds.length){ closePlayer(); return }
+  if(prog.id==='shoulder'){
+    document.getElementById('feel').classList.remove('hidden');
+    speak('Session complete. How did that feel?');
+    return;
+  }
+  const n=completedIds.length;
+  recordSession();
+  celebrate('🌿','Break complete',`${n} exercise${n>1?'s':''} done · ${calcStreak('eyes')} day eye streak 🔥`);
+  speak('Well done. Break complete.');
+}
+function chooseFeel(feel){
+  recordSession(feel);
+  document.getElementById('feel').classList.add('hidden');
+  const k=shoulderDoneSlots().size, streak=calcStreak('shoulder');
+  if(feel==='pain'){
+    celebrate('🤍','Thanks for being honest',`Next session, move less far — stop at a mild stretch. If the shoulder is still worse tomorrow morning, or this keeps happening, check with your physio. ${streak} day streak.`);
+    speak('Thanks. Next time, use a smaller range and stop at a mild stretch.');
+  } else {
+    const msg = feel==='mild' ? 'Mild discomfort that settles is expected and fine.' : 'Gentle and comfortable — exactly right.';
+    celebrate('🌿','Session complete',`${msg} ${k} of 3 sessions today · ${streak} day shoulder streak 🔥`);
+    speak('Well done. Session complete.');
+  }
+}
+function celebrate(emoji,title,sub){
+  document.getElementById('celebrate-emoji').textContent=emoji;
+  document.getElementById('celebrate-title').textContent=title;
+  document.getElementById('celebrate-sub').textContent=sub;
+  document.getElementById('celebrate').classList.remove('hidden');
 }
 function closePlayer(){
-  clearInterval(timer);
+  clearInterval(timer); stopShoulderAnim();
   if('speechSynthesis' in window) speechSynthesis.cancel();
-  if(document.getElementById('celebrate').classList.contains('hidden') && completedIds.length){
-    // ended early but some exercises were completed — still record them
-    DB.sessions.push({d:todayStr(), t:Date.now(), ex:completedIds});
-    save();
-    mirrorReminderState();
-  }
-  completedIds=[];
+  if(completedIds.length) recordSession(); // ended early or skipped the feel check — still counts
   document.getElementById('player').classList.add('hidden');
   renderHome();
 }
 
-/* ---------- progress view ---------- */
+/* =================================================================
+   PROGRESS
+   ================================================================= */
+let progressProgram='eyes';
+function setProgressProgram(pid){ progressProgram=pid; renderProgress() }
 function renderProgress(){
-  document.getElementById('st-streak').textContent=calcStreak();
-  document.getElementById('st-best').textContent=Math.max(calcBest(),calcStreak());
-  document.getElementById('st-total').textContent=DB.sessions.length;
+  const pid=progressProgram;
+  document.querySelectorAll('#prog-seg button').forEach(b=>b.classList.toggle('on',b.dataset.p===pid));
+  document.getElementById('prog-seg').className='seg p-'+pid;
+  document.getElementById('progress-body').className='p-'+pid;
+  const streak=calcStreak(pid);
+  document.getElementById('st-streak').textContent=streak;
+  document.getElementById('st-best').textContent=Math.max(calcBest(pid),streak);
+  document.getElementById('st-total').textContent=sessionsOf(pid).length;
+  document.getElementById('st-total-k').textContent=pid==='eyes'?'total breaks':'total sessions';
+  document.getElementById('cal-note').textContent = pid==='eyes'
+    ? 'Shade deepens with more breaks in a day. 4+ breaks = deepest.'
+    : 'Shade deepens as you cover morning, afternoon and evening. All 3 = deepest.';
 
   const now=new Date();
-  document.getElementById('cal-month').textContent =
-    now.toLocaleDateString([],{month:'long',year:'numeric'});
+  document.getElementById('cal-month').textContent=now.toLocaleDateString([],{month:'long',year:'numeric'});
   const y=now.getFullYear(), m=now.getMonth();
-  const first=new Date(y,m,1);
-  const days=new Date(y,m+1,0).getDate();
-  const lead=(first.getDay()+6)%7; // Monday-first
-  const counts={};
-  DB.sessions.forEach(s=>{counts[s.d]=(counts[s.d]||0)+1});
+  const days=new Date(y,m+1,0).getDate(), lead=(new Date(y,m,1).getDay()+6)%7;
+  const counts=dayCounts(pid);
+  const slotsByDay={};
+  if(pid==='shoulder') for(const s of sessionsOf('shoulder')) (slotsByDay[s.d]=slotsByDay[s.d]||new Set()).add(slotOf(new Date(s.t).getHours()));
   let html='';
   for(let i=0;i<lead;i++) html+='<div></div>';
   for(let d=1;d<=days;d++){
-    const k=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const c=counts[k]||0;
-    const lvl=c>=4?3:c>=2?2:c>=1?1:0;
+    const k=dkey(new Date(y,m,d)), c=counts[k]||0;
+    const lvl = pid==='eyes' ? (c>=4?3:c>=2?2:c>=1?1:0) : (slotsByDay[k]?.size||0);
     html+=`<div class="d ${lvl?'lvl'+lvl:''} ${k===todayStr()?'today':''}"><span class="n">${d}</span>${c?`<span>${c}</span>`:''}</div>`;
   }
   document.getElementById('cal').innerHTML=html;
+
+  const feelCard=document.getElementById('feel-card');
+  const felt=sessionsOf('shoulder').filter(s=>s.feel).slice(-14);
+  if(pid==='shoulder' && felt.length){
+    const face={ok:'😌',mild:'😐',pain:'😣'};
+    document.getElementById('feel-log').innerHTML=felt.map(s=>`<span title="${new Date(s.t).toLocaleString()}">${face[s.feel]}</span>`).join('');
+    feelCard.classList.remove('hidden');
+  } else feelCard.classList.add('hidden');
 }
 
-/* ---------- settings ---------- */
+/* =================================================================
+   SETTINGS
+   ================================================================= */
 function renderSettings(){
-  document.getElementById('ex-toggle-list').innerHTML = EXERCISES.map(e=>`
+  document.getElementById('ex-toggle-list').innerHTML = EYE_EXERCISES.map(e=>`
     <div class="set-row">
       <div><div class="lbl">${e.icon} ${e.name}</div><div class="hint">${e.tag}</div></div>
       <button class="toggle ${DB.settings.enabled[e.id]!==false?'on':''}" onclick="toggleExercise('${e.id}',this)"></button>
@@ -914,21 +1302,24 @@ function renderSettings(){
   document.getElementById('tg-remind').classList.toggle('on',DB.settings.remind);
   document.getElementById('tg-sound').classList.toggle('on',DB.settings.sound);
   document.getElementById('tg-voice').classList.toggle('on',DB.settings.voice);
+  document.getElementById('tg-sh-remind').classList.toggle('on',DB.settings.shoulder.remind);
   document.getElementById('tg-notify').classList.toggle('on',
     DB.settings.notify && 'Notification' in window && Notification.permission==='granted');
   const s=document.getElementById('wh-start'), e=document.getElementById('wh-end');
   if(!s.options.length){
-    for(let h=5;h<=23;h++){
-      s.add(new Option(h+':00',h)); e.add(new Option(h+':00',h));
-    }
+    for(let h=5;h<=23;h++){ s.add(new Option(h+':00',h)); e.add(new Option(h+':00',h)) }
   }
   s.value=DB.settings.whStart; e.value=DB.settings.whEnd;
+  document.getElementById('sh-time-rows').innerHTML = SLOTS.map((sl,i)=>{
+    let opts='';
+    for(let h=sl.min;h<=sl.max;h++) opts+=`<option value="${h}" ${h===DB.settings.shoulder.times[i]?'selected':''}>${h}:00</option>`;
+    return `<div class="set-row"><div class="lbl">${sl.label} session</div><select onchange="saveShoulderTime(${i},this.value)">${opts}</select></div>`;
+  }).join('');
 }
 function toggleExercise(id,btn){
-  const willEnable = DB.settings.enabled[id]===false;
-  if(!willEnable){
-    const remainingOn = EXERCISES.filter(e=>e.id!==id && DB.settings.enabled[e.id]!==false).length;
-    if(remainingOn===0){ toast('At least one exercise must stay on'); return }
+  const willEnable=DB.settings.enabled[id]===false;
+  if(!willEnable && !EYE_EXERCISES.some(e=>e.id!==id && DB.settings.enabled[e.id]!==false)){
+    toast('At least one exercise must stay on'); return;
   }
   DB.settings.enabled[id]=willEnable; save();
   btn.classList.toggle('on',willEnable);
@@ -936,7 +1327,16 @@ function toggleExercise(id,btn){
 function toggleSetting(k,btn){
   DB.settings[k]=!DB.settings[k]; save();
   btn.classList.toggle('on',DB.settings[k]);
-  if(k==='remind'){ renderReminderCard(); mirrorReminderState(); }
+  if(k==='remind') mirrorReminderState();
+}
+function toggleShoulderRemind(btn){
+  DB.settings.shoulder.remind=!DB.settings.shoulder.remind; save();
+  btn.classList.toggle('on',DB.settings.shoulder.remind);
+  mirrorReminderState();
+}
+function saveShoulderTime(i,v){
+  DB.settings.shoulder.times[i]=+v; save();
+  mirrorReminderState();
 }
 async function toggleNotify(btn){
   if(!('Notification' in window)){ toast('Notifications not supported in this browser'); return }
@@ -954,10 +1354,10 @@ function saveWorkHours(){
 
 /* ---------- export / import ---------- */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'bloom-eye-care',exported:new Date().toISOString(),sessions:DB.sessions},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'bloom',exported:new Date().toISOString(),sessions:DB.sessions},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='bloom-eye-progress-'+todayStr()+'.json';
+  a.download='bloom-progress-'+todayStr()+'.json';
   a.click(); URL.revokeObjectURL(a.href);
   toast('Backup saved 📁');
 }
@@ -974,7 +1374,7 @@ function importData(input){
         if(s && s.d && s.t && !seen.has(s.t)){ DB.sessions.push(s); added++ }
       }
       DB.sessions.sort((a,b)=>a.t-b.t);
-      save(); renderHome();
+      save(); renderHome(); mirrorReminderState();
       toast(`Merged ${added} session${added===1?'':'s'} ✓`);
     }catch(e){ toast('That file doesn\'t look like a Bloom backup') }
   };
@@ -982,7 +1382,6 @@ function importData(input){
   input.value='';
 }
 
-/* ---------- toast ---------- */
 let toastT=null;
 function toast(msg){
   const t=document.getElementById('toast');
@@ -991,7 +1390,6 @@ function toast(msg){
   toastT=setTimeout(()=>t.classList.remove('show'),3200);
 }
 
-/* ---------- boot ---------- */
 renderHome(); renderSettings(); tickReminder(); registerServiceWorker();
 </script>
 </body>

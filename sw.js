@@ -3,8 +3,8 @@
    Reads mirrored reminder state from IndexedDB (service workers can't see
    the page's localStorage), since periodicsync can fire with no page open. */
 
-const CACHE = 'bloom-shell-v2';
-const ASSETS = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-512-maskable.png'];
+const CACHE = 'bloom-shell-v3';
+const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-512-maskable.png'];
 
 self.addEventListener('install', event => {
   self.skipWaiting();
@@ -18,9 +18,19 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
+// Network-first so app updates arrive on the next load; cache keeps it working offline.
 self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
   event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request).catch(() => cached))
+    fetch(event.request)
+      .then(res => {
+        if (res.ok && new URL(event.request.url).origin === self.location.origin) {
+          const copy = res.clone();
+          caches.open(CACHE).then(c => c.put(event.request, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
 
@@ -34,50 +44,51 @@ function idbOpen() {
 }
 function getReminderState() {
   return idbOpen().then(db => new Promise(resolve => {
-    const tx = db.transaction('state', 'readonly');
-    const req = tx.objectStore('state').get('reminder');
+    const req = db.transaction('state', 'readonly').objectStore('state').get('reminder');
     req.onsuccess = () => resolve(req.result || null);
     req.onerror = () => resolve(null);
   })).catch(() => null);
 }
-function pad(n) { return String(n).padStart(2, '0') }
+const pad = n => String(n).padStart(2, '0');
 function todayStrNow() {
   const d = new Date();
   return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 }
+const SLOT_LABELS = ['morning', 'afternoon', 'evening'];
+const slotOf = h => h < 12 ? 0 : h < 17 ? 1 : 2;
 
 async function checkAndNotify() {
   const st = await getReminderState();
-  if (!st || !st.remind) return;
-  const now = new Date(), h = now.getHours();
-  if (h < st.whStart || h >= st.whEnd) return;
-  const doneHours = (st.today === todayStrNow()) ? (st.doneHours || []) : [];
-  if (doneHours.includes(h)) return;
-  await self.registration.showNotification('Bloom — eye break time', {
-    body: 'A gentle break is due this hour. Five short exercises, about five minutes.',
-    icon: 'icon-192.png',
-    badge: 'icon-192.png',
-    tag: 'bloom-reminder',
-    renotify: true
-  });
+  if (!st) return;
+  const h = new Date().getHours();
+  const isToday = st.today === todayStrNow();
+
+  if (st.remind && h >= st.whStart && h < st.whEnd) {
+    const doneHours = isToday ? (st.doneHours || []) : [];
+    if (!doneHours.includes(h)) {
+      await self.registration.showNotification('Bloom — eye break time', {
+        body: 'A gentle break is due this hour. Five short exercises, about five minutes.',
+        icon: 'icon-192.png', badge: 'icon-192.png', tag: 'bloom-reminder'
+      });
+    }
+  }
+
+  if (st.sRemind && Array.isArray(st.sTimes)) {
+    const i = slotOf(h);
+    const doneSlots = isToday ? (st.sDoneSlots || []) : [];
+    if (h >= st.sTimes[i] && !doneSlots.includes(i)) {
+      await self.registration.showNotification('Bloom — shoulder session', {
+        body: `Your ${SLOT_LABELS[i]} session: 3 gentle exercises, about 5 minutes.`,
+        icon: 'icon-192.png', badge: 'icon-192.png', tag: 'bloom-shoulder'
+      });
+    }
+  }
 }
 
-// Fires only for installed PWAs, only on Chrome/Edge (desktop + Android),
-// and only after the browser's engagement heuristics allow it — there is
-// no user-facing prompt for this permission, so it can take normal daily
-// use for a few days before the browser starts granting sync ticks.
+// Only for installed PWAs on Chrome/Edge, and only once the browser's own
+// engagement heuristics grant it — no user prompt exists for this permission.
 self.addEventListener('periodicsync', event => {
-  if (event.tag === 'bloom-reminder-check') {
-    event.waitUntil(checkAndNotify());
-  }
-});
-
-// Fallback for browsers/situations without periodic sync: a one-off sync
-// requested by the page right before it would otherwise be backgrounded.
-self.addEventListener('sync', event => {
-  if (event.tag === 'bloom-reminder-check-once') {
-    event.waitUntil(checkAndNotify());
-  }
+  if (event.tag === 'bloom-reminder-check') event.waitUntil(checkAndNotify());
 });
 
 self.addEventListener('notificationclick', event => {

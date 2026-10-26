@@ -1,7 +1,7 @@
 {
-  "name": "Bloom — Eye Care Companion",
+  "name": "Bloom — Health Routines",
   "short_name": "Bloom",
-  "description": "Guided eye exercises and break reminders, fully offline.",
+  "description": "Guided, evidence-based health exercise routines with reminders and streaks. Fully offline.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
