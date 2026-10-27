@@ -136,6 +136,44 @@
   .mini{font-size:12.5px;padding:6px 12px;border-radius:999px;border:1px solid var(--line2);color:var(--dim)}
   .mini.danger{color:#e3b3a7;border-color:rgba(207,141,126,.4)}
 
+  /* ---------- shoulder progress check ---------- */
+  .p-shoulder{--chart:#22a896}
+  .check-cta{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:11px 14px;border-radius:14px;border:1px dashed var(--accline);background:var(--accbg);color:var(--acc2);font-size:13.5px;text-align:left}
+  .ck-row{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+  .ck-row input.txt{width:110px}
+  .ck-row .u{color:var(--faint);font-size:14px}
+  .opt3{display:flex;gap:6px;margin-top:8px}
+  .opt3 button{flex:1;padding:9px 6px;border-radius:10px;border:1px solid var(--line2);color:var(--dim);font-size:13.5px}
+  .opt3 button.on,.pain-grid button.on,.rot-btns button.on{background:var(--accbg);border-color:var(--acc);color:var(--acc2)}
+  .rot-btns{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:8px}
+  .rot-btns button{padding:8px 2px;border-radius:10px;border:1px solid var(--line2);color:var(--dim);font-size:12.5px;line-height:1.25}
+  .pain-grid{display:grid;grid-template-columns:repeat(11,1fr);gap:4px;margin-top:8px}
+  .pain-grid button{aspect-ratio:1;border-radius:8px;border:1px solid var(--line2);color:var(--dim);font-size:13px;font-variant-numeric:tabular-nums}
+  .pain-ends{display:flex;justify-content:space-between;font-size:11.5px;color:var(--faint);margin-top:4px}
+  .fn-row{padding:10px 0;border-bottom:1px solid var(--line);color:var(--text);font-size:14px}
+  .fn-row:last-child{border-bottom:none}
+  .rot-fig{width:100%;max-width:300px;display:block;margin:8px auto 0}
+  .rot-fig .ray{stroke:var(--line2);stroke-width:2;stroke-linecap:round}
+  .rot-fig .ray.on{stroke:var(--acc2);stroke-width:5}
+  .rot-fig .hit{fill:transparent;cursor:pointer}
+  .rot-fig text{fill:var(--faint);font:600 10px var(--sans)}
+  .rot-fig text.on{fill:var(--acc2)}
+  .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+  .chart{position:relative;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 12px 6px}
+  .chart h4{font-size:12.5px;color:var(--dim);font-weight:600;font-family:var(--sans)}
+  .chart .big{font-family:var(--serif);font-size:22px;color:var(--text);line-height:1.2}
+  .chart .big small{font-family:var(--sans);font-size:12px;color:var(--faint);margin-left:3px}
+  .chart .delta{font-size:12px;color:var(--dim);min-height:18px}
+  .chart svg{width:100%;height:auto;display:block;margin-top:4px;touch-action:pan-y}
+  .chart .grid{stroke:var(--line);stroke-width:1}
+  .chart .axis{fill:var(--faint);font:10px var(--sans)}
+  .chart .cross{stroke:var(--line2);stroke-width:1;stroke-dasharray:2 3}
+  .tip{position:absolute;pointer-events:none;background:var(--card2);border:1px solid var(--line2);border-radius:8px;padding:5px 9px;font-size:12px;color:var(--text);white-space:nowrap;transform:translate(-50%,calc(-100% - 10px));opacity:0;transition:opacity .12s;z-index:2}
+  .tip.show{opacity:1}
+  table.ck{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+  table.ck th{text-align:left;color:var(--faint);font-weight:600;font-size:11.5px;letter-spacing:.4px;padding:6px 4px;border-bottom:1px solid var(--line2)}
+  table.ck td{padding:7px 4px;border-bottom:1px solid var(--line);color:var(--dim);font-variant-numeric:tabular-nums}
+
   /* ---------- exercise rows (sheet) ---------- */
   .ex-row{display:flex;align-items:center;gap:14px;padding:13px 4px;border-bottom:1px solid var(--line)}
   .ex-row:last-child{border-bottom:none}
@@ -301,6 +339,7 @@
       </div>
       <div class="slots" id="sh-slots"></div>
       <div class="status" id="sh-status"><div class="dot"></div><div id="sh-status-text"></div></div>
+      <button class="check-cta hidden" id="sh-check" onclick="openSheet('check')"></button>
       <div class="warn hidden" id="sh-warn"></div>
       <div class="prog-actions">
         <button class="btn-acc" onclick="startRoutine('shoulder')">Start shoulder session<small>3 exercises · about 5 minutes</small></button>
@@ -351,6 +390,10 @@
           <div class="feel-log" id="feel-log"></div>
           <div class="feel-legend">😌 comfortable · 😐 mild, settled · 😣 too painful — newest on the right. Worth showing your physio.</div>
         </div>
+      </div>
+      <div id="checks-card" class="hidden">
+        <div class="section-label">Weekly progress checks</div>
+        <div id="checks-body"></div>
       </div>
     </div>
   </div>
@@ -714,8 +757,9 @@ const SETTINGS_DEFAULT = {remind:true, sound:true, voice:true, notify:false, whS
   shoulder:{remind:true, times:[8,14,20]}, habits:{remind:true, time:21}};
 /* habits: [{id, name, emoji, kind:'build'|'avoid', created:'YYYY-MM-DD'}]
    habitLog[id][day] = 1 means "did it" for build habits, "slipped" for avoid habits. */
+/* shoulderChecks: [{d, t, reach:cm|null, rot:0|15|30|45|60|null, pain:0-10|null, fn:{shelf,shirt,back,sleep: 0|1|2}}] */
 const DB = Object.assign({sessions:[], lastReminderHour:null, lastShoulderReminder:null,
-  habits:[], habitLog:{}, habitTouched:null, lastHabitReminder:null}, load());
+  habits:[], habitLog:{}, habitTouched:null, lastHabitReminder:null, shoulderChecks:[]}, load());
 DB.settings = Object.assign({}, SETTINGS_DEFAULT, DB.settings);
 DB.settings.enabled = Object.assign(Object.fromEntries(EYE_EXERCISES.map(e=>[e.id,true])), DB.settings.enabled);
 DB.settings.shoulder = Object.assign({}, SETTINGS_DEFAULT.shoulder, DB.settings.shoulder);
@@ -895,6 +939,227 @@ function refreshHabitViews(resetForm){
 }
 
 /* =================================================================
+   SHOULDER WEEKLY PROGRESS CHECK
+   ================================================================= */
+const ROT_OPTS=[{v:0,label:'Straight ahead'},{v:15,label:'~15°'},{v:30,label:'~30°'},{v:45,label:'~45°'},{v:60,label:'60°+'}];
+const FN_ITEMS=[
+  {id:'shelf', label:'Reach a high shelf with your left hand'},
+  {id:'shirt', label:'Put on a shirt or jacket comfortably'},
+  {id:'back',  label:'Reach behind your back (e.g. back pocket)'},
+  {id:'sleep', label:'Sleep on your left side'}
+];
+const METRICS=[
+  {key:'reach', title:'Wall reach',      unit:'cm', better:'up'},
+  {key:'rot',   title:'Turn-out',        unit:'°',  better:'up',   lo:0, hi:60},
+  {key:'pain',  title:'Worst pain',      unit:'/10',better:'down', lo:0, hi:10},
+  {key:'fn',    title:'Everyday tasks',  unit:'/8', better:'up',   lo:0, hi:8}
+];
+let draft=null, showCheckTable=false;
+const numOrNull = v => (v===''||v==null||isNaN(+v)) ? null : +v;
+const shortDate = key => new Date(key+'T12:00').toLocaleDateString([],{day:'numeric',month:'short'});
+const checksSorted = () => [...DB.shoulderChecks].sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0);
+function fnScore(c){
+  if(!c.fn) return null;
+  const v=FN_ITEMS.map(i=>c.fn[i.id]);
+  return v.every(x=>x!=null) ? v.reduce((a,b)=>a+b,0) : null;
+}
+const metricVal = (c,key) => key==='fn' ? fnScore(c) : (c[key]??null);
+function metricSeries(key){ return checksSorted().map(c=>({d:c.d, v:metricVal(c,key)})).filter(p=>p.v!=null) }
+function metricDelta(key){
+  const s=metricSeries(key);
+  return s.length>1 ? s.at(-1).v - s[0].v : null;
+}
+function checkDue(){
+  const last=checksSorted().at(-1);
+  return !last || daysBetween(last.d,todayStr())>=7;
+}
+function progressFlag(){
+  const cs=checksSorted();
+  if(cs.length<2) return null;
+  const pain=metricDelta('pain');
+  if(pain!=null && pain>=3) return 'Your worst pain is 3+ points higher than at your first progress check. Call your doctor rather than waiting it out.';
+  if(daysBetween(cs[0].d, cs.at(-1).d)>=42){
+    const better=(metricDelta('reach')??0)>=3 || (metricDelta('rot')??0)>0 || (pain??0)<=-2 || (metricDelta('fn')??0)>=2;
+    if(!better) return 'No measurable improvement across 6 weeks of progress checks. Time to review the plan with your doctor or physio — they have other options if exercise alone isn\'t moving things.';
+  }
+  return null;
+}
+
+function rotFigure(sel){
+  const P={x:118,y:108}, L=90;
+  const pt=(deg,len)=>({x:P.x-len*Math.sin(deg*Math.PI/180), y:P.y-len*Math.cos(deg*Math.PI/180)});
+  let rays='', hits='', labels='';
+  for(const o of ROT_OPTS){
+    const e=pt(o.v,L), t=pt(o.v,L+12), on=sel===o.v;
+    rays+=`<line class="ray ${on?'on':''}" x1="${P.x}" y1="${P.y}" x2="${e.x.toFixed(1)}" y2="${e.y.toFixed(1)}"/>`;
+    if(on) rays+=`<circle cx="${e.x.toFixed(1)}" cy="${e.y.toFixed(1)}" r="5" fill="var(--acc2)"/>`;
+    labels+=`<text class="${on?'on':''}" x="${t.x.toFixed(1)}" y="${(t.y+3).toFixed(1)}" text-anchor="middle">${o.v===60?'60+':o.v}°</text>`;
+    const a=pt(o.v-7.5,L+16), b=pt(o.v+7.5,L+16);
+    hits+=`<path class="hit" d="M${P.x} ${P.y} L${a.x.toFixed(1)} ${a.y.toFixed(1)} L${b.x.toFixed(1)} ${b.y.toFixed(1)} Z" onclick="setDraft('rot',${o.v})"><title>${o.label}</title></path>`;
+  }
+  return `<svg class="rot-fig" viewBox="0 0 220 140" role="img" aria-label="Top-down view: left forearm turning outward">
+    <line x1="118" y1="122" x2="200" y2="122" stroke="#7d7062" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="159" cy="122" r="12" fill="none" stroke="#7d7062" stroke-width="3.5"/>
+    <line x1="200" y1="122" x2="198" y2="102" stroke="#7d7062" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+    ${rays}${labels}${hits}
+    <text x="126" y="40" style="fill:var(--faint)">↑ forward</text>
+    <text x="22" y="122" style="fill:var(--faint)">← outward</text>
+    <text x="212" y="139" text-anchor="end" style="fill:var(--faint);font-size:9px">you, from above</text>
+  </svg>`;
+}
+function checkFormHtml(){
+  const d=draft, right=DB.settings.shoulder.rightReach;
+  const first=!DB.shoulderChecks.some(c=>c.d!==todayStr());
+  const pct = (d.reach && right) ? ` · ${Math.round(d.reach/right*100)}% of your right arm` : '';
+  return `
+    <div class="sheet-title">Weekly progress check</div>
+    <div class="sheet-sub">${first?'Your first check sets the baseline everything is compared to.':'Same way as last time, so the numbers compare fairly.'} About 2 minutes. Same comfort rule as always: mild stretch only.</div>
+
+    <div class="info"><h3>1 · Wall reach</h3>
+      <ul><li>Stand facing a wall, toes one foot-length away from it.</li>
+      <li>Walk your left fingers up the wall as high as is comfortable. Stop at a mild stretch.</li>
+      <li>Mark the spot (sticky note or pencil) and measure its height from the floor.</li></ul>
+      <div class="ck-row"><input class="txt" type="number" inputmode="numeric" min="30" max="260" id="ck-reach" value="${d.reach??''}" oninput="setDraft('reach',numOrNull(this.value),true)" aria-label="Left arm reach in centimetres"><span class="u">cm, left arm${pct}</span></div>
+      <div class="ck-row"><input class="txt" type="number" inputmode="numeric" min="30" max="260" id="ck-right" value="${right??''}" oninput="setRightReach(this.value)" aria-label="Right arm reach in centimetres"><span class="u">cm, right arm — once, as your target (optional)</span></div>
+    </div>
+
+    <div class="info"><h3>2 · Turn-out</h3>
+      Elbow tucked at your side and bent 90°, like the Stick Rotation. Let your right hand push the stick so your left hand turns outward, to a mild stretch. Where does your left hand get to? Tap the closest line.
+      ${rotFigure(d.rot)}
+      <div class="rot-btns">${ROT_OPTS.map(o=>`<button class="${d.rot===o.v?'on':''}" onclick="setDraft('rot',${o.v})">${o.label}</button>`).join('')}</div>
+    </div>
+
+    <div class="info"><h3>3 · Everyday tasks this week</h3>
+      ${FN_ITEMS.map(i=>`<div class="fn-row">${i.label}
+        <div class="opt3">${[[2,'Yes'],[1,'Partly'],[0,'No']].map(([v,l])=>`<button class="${d.fn[i.id]===v?'on':''}" onclick="setFn('${i.id}',${v})">${l}</button>`).join('')}</div></div>`).join('')}
+    </div>
+
+    <div class="info"><h3>4 · Worst shoulder pain this week</h3>
+      <div class="pain-grid">${Array.from({length:11},(_,v)=>`<button class="${d.pain===v?'on':''}" onclick="setDraft('pain',${v})" aria-label="Pain ${v} of 10">${v}</button>`).join('')}</div>
+      <div class="pain-ends"><span>0 · none</span><span>10 · worst imaginable</span></div>
+    </div>
+
+    <button class="btn-acc" style="width:100%;margin-bottom:10px" onclick="saveCheck()">Save progress check</button>
+    <div class="note">Skip anything you can't measure — you can still save the rest.</div>`;
+}
+function rerenderCheck(){
+  const sheet=document.getElementById('sheet'), y=sheet.scrollTop;
+  document.getElementById('sheet-body').innerHTML=checkFormHtml();
+  sheet.scrollTop=y;
+}
+function setDraft(key,v,fromInput){
+  draft[key]=v;
+  if(fromInput){ // keep focus in the text box: only refresh the % hint
+    const right=DB.settings.shoulder.rightReach, u=document.querySelector('#ck-reach + .u');
+    if(u) u.textContent='cm, left arm'+((v && right)?` · ${Math.round(v/right*100)}% of your right arm`:'');
+  } else rerenderCheck();
+}
+function setFn(id,v){ draft.fn[id]=v; rerenderCheck() }
+function setRightReach(v){
+  DB.settings.shoulder.rightReach=numOrNull(v); save();
+  setDraft('reach',draft.reach,true);
+}
+function saveCheck(){
+  const d=draft;
+  const empty = d.reach==null && d.rot==null && d.pain==null && !Object.keys(d.fn).length;
+  if(empty){ toast('Fill in at least one measurement'); return }
+  if(d.reach!=null && (d.reach<30 || d.reach>260)){ toast('Reach should be in centimetres, between 30 and 260'); return }
+  const entry={d:todayStr(), t:Date.now(), reach:d.reach, rot:d.rot, pain:d.pain, fn:{...d.fn}};
+  DB.shoulderChecks=DB.shoulderChecks.filter(c=>c.d!==entry.d).concat(entry);
+  save();
+  draft=null;
+  renderCheckResult();
+  renderHome();
+}
+function deltaPhrase(m, diff){
+  if(diff==null) return null;
+  if(diff===0) return `${m.title}: no change`;
+  const good = m.better==='up' ? diff>0 : diff<0;
+  const n = (diff>0?'+':'−')+Math.abs(diff)+(m.unit==='°'?'°':m.unit==='cm'?' cm':'');
+  return `${m.title}: <b>${n}</b> ${good?'— better':'— worse'}`;
+}
+function renderCheckResult(){
+  const cs=checksSorted(), first=cs[0];
+  const lines = cs.length>1 ? METRICS.map(m=>deltaPhrase(m,metricDelta(m.key))).filter(Boolean) : [];
+  const flag=progressFlag();
+  document.getElementById('sheet-body').innerHTML = `
+    <div class="sheet-title">${cs.length>1?'Progress check saved':'Baseline saved'}</div>
+    <div class="sheet-sub">${cs.length>1?`Compared with your first check on ${shortDate(first.d)}:`:'Everything from here on is measured against today.'}</div>
+    ${lines.length?`<div class="info"><ul>${lines.map(l=>`<li>${l}</li>`).join('')}</ul></div>`:''}
+    ${flag?`<div class="warn" style="margin:0 0 12px">${flag}</div>`:''}
+    <div class="info">Next check: <b>${shortDate(addDays(todayStr(),7))}</b>. The shoulder card will remind you. Your charts are under Progress → Shoulder.</div>
+    <button class="btn-acc" style="width:100%" onclick="closeSheet()">Done</button>`;
+  document.getElementById('sheet').scrollTop=0;
+}
+
+/* ---------- charts: one small single-series chart per measure ---------- */
+function miniChart(m){
+  const s=metricSeries(m.key), W=220, H=104, L=26, R=10, T=10, B=20;
+  if(!s.length) return `<div class="chart"><h4>${m.title}</h4><div class="big">—</div><div class="delta">Not measured yet</div></div>`;
+  const vals=s.map(p=>p.v), latest=s.at(-1).v;
+  let lo=m.lo, hi=m.hi;
+  if(lo==null){ lo=Math.floor((Math.min(...vals)-5)/10)*10; hi=Math.ceil((Math.max(...vals)+5)/10)*10 }
+  const span=Math.max(1,daysBetween(s[0].d,s.at(-1).d));
+  const x = p => s.length===1 ? (L+W-R)/2 : L+(W-L-R)*daysBetween(s[0].d,p.d)/span;
+  const y = v => T+(H-T-B)*(1-(v-lo)/(hi-lo));
+  const pts=s.map(p=>({x:+x(p).toFixed(1), y:+y(p.v).toFixed(1), label:`${shortDate(p.d)} · ${p.v}${m.unit==='cm'?' cm':m.unit}`}));
+  const mid=Math.round((lo+hi)/2);
+  const grid=[lo,mid,hi].map(v=>`<line class="grid" x1="${L}" x2="${W-R}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/><text class="axis" x="${L-5}" y="${(y(v)+3).toFixed(1)}" text-anchor="end">${v}</text>`).join('');
+  const xl = s.length>1
+    ? `<text class="axis" x="${L}" y="${H-5}">${shortDate(s[0].d)}</text><text class="axis" x="${W-R}" y="${H-5}" text-anchor="end">${shortDate(s.at(-1).d)}</text>`
+    : `<text class="axis" x="${(L+W-R)/2}" y="${H-5}" text-anchor="middle">${shortDate(s[0].d)}</text>`;
+  const line = s.length>1 ? `<polyline points="${pts.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="var(--chart)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` : '';
+  const dots=pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4" fill="var(--chart)" stroke="var(--card)" stroke-width="2"/>`).join('');
+  const diff=metricDelta(m.key);
+  const deltaTxt = diff==null ? 'First measurement'
+    : diff===0 ? 'No change since first check'
+    : `${diff>0?'+':'−'}${Math.abs(diff)}${m.unit==='cm'?' cm':m.unit==='°'?'°':''} since first check · ${(m.better==='up'?diff>0:diff<0)?'better':'worse'}`;
+  return `<div class="chart" data-pts='${JSON.stringify(pts).replace(/'/g,'&#39;')}'>
+    <h4>${m.title}${m.better==='down'?' <span style="font-weight:400;color:var(--faint)">(lower is better)</span>':''}</h4>
+    <div class="big">${latest}<small>${m.unit==='cm'?'cm':m.unit}</small></div>
+    <div class="delta">${deltaTxt}</div>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${m.title} over time">${grid}${xl}
+      <line class="cross" y1="${T}" y2="${H-B}" x1="-10" x2="-10"/>${line}${dots}</svg>
+    <div class="tip"></div></div>`;
+}
+function wireChartTips(root){
+  root.querySelectorAll('.chart[data-pts]').forEach(ch=>{
+    const svg=ch.querySelector('svg'), tip=ch.querySelector('.tip'), cross=ch.querySelector('.cross');
+    const pts=JSON.parse(ch.dataset.pts), vb=svg.viewBox.baseVal;
+    const show=e=>{
+      const r=svg.getBoundingClientRect(), c=ch.getBoundingClientRect(), vx=(e.clientX-r.left)/r.width*vb.width;
+      const p=pts.reduce((a,b)=>Math.abs(b.x-vx)<Math.abs(a.x-vx)?b:a);
+      cross.setAttribute('x1',p.x); cross.setAttribute('x2',p.x);
+      tip.textContent=p.label;
+      // SVG elements have no offsetLeft/Top, so position relative to the chart card
+      const left=r.left-c.left+p.x/vb.width*r.width;
+      tip.style.left=Math.min(Math.max(left,60),c.width-60)+'px';
+      tip.style.top=(r.top-c.top+p.y/vb.height*r.height)+'px';
+      tip.classList.add('show');
+    };
+    const hide=()=>{ tip.classList.remove('show'); cross.setAttribute('x1',-10); cross.setAttribute('x2',-10) };
+    svg.addEventListener('pointermove',show);
+    svg.addEventListener('pointerdown',show);
+    svg.addEventListener('pointerleave',hide);
+  });
+}
+function renderChecksProgress(){
+  const body=document.getElementById('checks-body'), cs=checksSorted();
+  const hasToday=cs.some(c=>c.d===todayStr());
+  const cta=`<button class="check-cta" style="margin:0 0 12px" onclick="openSheet('check')">📏 ${!cs.length?'Do your first progress check — it sets your baseline (2 min)':hasToday?'Redo today\'s check':checkDue()?'This week\'s check is due — 2 minutes':'Do an extra check'}</button>`;
+  if(!cs.length){ body.innerHTML=cta; return }
+  const flag=progressFlag();
+  const table = `<table class="ck"><thead><tr><th>Date</th><th>Reach</th><th>Turn-out</th><th>Pain</th><th>Tasks</th></tr></thead><tbody>
+    ${[...cs].reverse().map(c=>`<tr><td>${shortDate(c.d)}</td><td>${c.reach??'—'}${c.reach!=null?' cm':''}</td><td>${c.rot!=null?c.rot+'°':'—'}</td><td>${c.pain??'—'}</td><td>${fnScore(c)??'—'}${fnScore(c)!=null?'/8':''}</td></tr>`).join('')}</tbody></table>`;
+  body.innerHTML = cta + (flag?`<div class="warn" style="margin:0 0 12px">${flag}</div>`:'')
+    + (showCheckTable ? `<div class="card" style="padding:12px 14px">${table}</div>` : `<div class="charts">${METRICS.map(miniChart).join('')}</div>`)
+    + `<div class="note" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+        <span>${cs.length===1?'Lines appear after your second check.':`${cs.length} checks since ${shortDate(cs[0].d)}.`}</span>
+        <button class="mini" onclick="showCheckTable=!showCheckTable;renderChecksProgress()">${showCheckTable?'Chart view':'Table view'}</button></div>`;
+  if(!showCheckTable) wireChartTips(body);
+}
+
+/* =================================================================
    AUDIO + VOICE
    ================================================================= */
 let actx=null;
@@ -1032,13 +1297,20 @@ function renderShoulderCard(){
       : `<b>${count}</b> of 3 done · next: ${SLOTS[next].label.toLowerCase()} at ${times[next]}:00`;
   }
 
+  const cs=checksSorted(), cta=document.getElementById('sh-check');
+  if(!cs.length){ cta.textContent='📏 Do your first progress check — sets your baseline (2 min)'; cta.classList.remove('hidden') }
+  else if(checkDue()){ cta.textContent=`📏 Weekly progress check is due — last one ${shortDate(cs.at(-1).d)}`; cta.classList.remove('hidden') }
+  else cta.classList.add('hidden');
+
+  const msgs=[];
   const recent=sessionsOf('shoulder').filter(s=>s.feel).slice(-3);
   const painful=recent.filter(s=>s.feel==='pain').length;
+  if(painful>=2) msgs.push(`${painful} of your last 3 sessions felt too painful. Use a smaller range next time. If pain keeps rising, or night pain worsens, check in with your doctor or physio.`);
+  const flag=progressFlag();
+  if(flag) msgs.push(flag);
   const warn=document.getElementById('sh-warn');
-  if(painful>=2){
-    warn.textContent=`${painful} of your last 3 sessions felt too painful. Use a smaller range next time. If pain keeps rising, or night pain worsens, check in with your doctor or physio.`;
-    warn.classList.remove('hidden');
-  } else warn.classList.add('hidden');
+  warn.innerHTML=msgs.join('<br><br>');
+  warn.classList.toggle('hidden',!msgs.length);
 }
 
 /* =================================================================
@@ -1112,6 +1384,15 @@ function habitsSheetHtml(){
 let currentSheet=null;
 function openSheet(pid){
   currentSheet=pid;
+  if(pid==='check'){
+    const today=DB.shoulderChecks.find(c=>c.d===todayStr());
+    draft = today ? {reach:today.reach, rot:today.rot, pain:today.pain, fn:{...today.fn}} : {reach:null, rot:null, pain:null, fn:{}};
+    document.getElementById('sheet-body').innerHTML=checkFormHtml();
+    const sheet=document.getElementById('sheet');
+    sheet.className='p-shoulder';
+    sheet.scrollTop=0;
+    return;
+  }
   if(pid==='habits'){
     document.getElementById('sheet-body').innerHTML=habitsSheetHtml();
     const sheet=document.getElementById('sheet');
@@ -1138,7 +1419,7 @@ function openSheet(pid){
       <li>Move to a <b>mild stretch</b>. Discomfort up to about <b>3 out of 10</b> is fine.</li>
       <li><b>Never push into sharp pain.</b> Forcing it does not speed things up.</li>
       <li>Any ache should settle within <b>30 minutes</b>. If you're still worse the next morning, use a smaller range next time.</li></ul></div>
-    <div class="info"><h3>How often</h3><b>Morning, afternoon and evening</b> — about 5 minutes each, every day. With a stiff shoulder, little and often works far better than one long session. The 3 time slots and reminders are set in Settings.</div>
+    <div class="info"><h3>How often</h3><b>Morning, afternoon and evening</b> — about 5 minutes each, every day. With a stiff shoulder, little and often works far better than one long session. The 3 time slots and reminders are set in Settings.<br><br><b>Once a week:</b> a 2-minute progress check (wall reach, turn-out, everyday tasks, worst pain). Day to day you won't feel improvement, but the weekly numbers show it.</div>
     <div class="info"><h3>Why these three</h3><ul>
       <li><b>Pendulum</b> — gravity gently separates the joint while the muscles stay relaxed. It's a core part of the pain-limited approach that outperformed intensive stretching at 2 years (Diercks &amp; Stevens, 2004).</li>
       <li><b>Table Slide</b> — the gentlest way to work on raising the arm. Leaning your body does the lifting, so the painful capsule isn't strained.</li>
@@ -1148,14 +1429,19 @@ function openSheet(pid){
       <li>pain is steadily getting worse, or night pain is disrupting sleep more and more</li>
       <li>you notice new numbness, tingling, or weakness in the arm or hand</li>
       <li>the shoulder becomes red, hot or swollen, or you get a fever</li>
-      <li>there's no improvement at all after about 6 weeks of steady practice</li></ul></div>
+      <li>there's no improvement at all after about 6 weeks of steady practice — Bloom flags this from your weekly checks</li></ul></div>
     <div class="note">General guidance to support the physiotherapy your orthopaedic doctor prescribed — check these exercises with your physio, who can tailor the range to you.</div>`;
   document.getElementById('sheet-body').innerHTML=body;
   const sheet=document.getElementById('sheet');
   sheet.className='p-'+pid;
   sheet.scrollTop=0;
 }
-function closeSheet(){ currentSheet=null; newHabitKind='build'; document.getElementById('sheet').classList.add('hidden'); renderHome() }
+function closeSheet(){
+  currentSheet=null; newHabitKind='build'; draft=null;
+  document.getElementById('sheet').classList.add('hidden');
+  renderHome();
+  if(!document.getElementById('view-progress').classList.contains('hidden')) renderProgress();
+}
 
 /* =================================================================
    REMINDER STATE MIRROR (for the service worker, which can't read localStorage)
@@ -1641,6 +1927,9 @@ function renderProgress(){
     document.getElementById('feel-log').innerHTML=felt.map(s=>`<span title="${new Date(s.t).toLocaleString()}">${face[s.feel]}</span>`).join('');
     feelCard.classList.remove('hidden');
   } else feelCard.classList.add('hidden');
+
+  document.getElementById('checks-card').classList.toggle('hidden', pid!=='shoulder');
+  if(pid==='shoulder') renderChecksProgress();
 }
 
 /* =================================================================
@@ -1720,7 +2009,7 @@ function saveWorkHours(){
 
 /* ---------- export / import ---------- */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'bloom',exported:new Date().toISOString(),sessions:DB.sessions,habits:DB.habits,habitLog:DB.habitLog},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'bloom',exported:new Date().toISOString(),sessions:DB.sessions,habits:DB.habits,habitLog:DB.habitLog,shoulderChecks:DB.shoulderChecks},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   a.download='bloom-progress-'+todayStr()+'.json';
@@ -1749,8 +2038,18 @@ function importData(input){
         const log=DB.habitLog[h.id] || (DB.habitLog[h.id]={});
         for(const day of Object.keys((data.habitLog||{})[h.id]||{})) if(/^\d{4}-\d{2}-\d{2}$/.test(day)) log[day]=1;
       }
+      let addedChecks=0;
+      const okNum=(v,lo,hi)=>v==null || (typeof v==='number' && v>=lo && v<=hi);
+      for(const c of (Array.isArray(data.shoulderChecks)?data.shoulderChecks:[])){
+        if(!c || !/^\d{4}-\d{2}-\d{2}$/.test(c.d) || DB.shoulderChecks.some(x=>x.d===c.d)) continue;
+        if(!okNum(c.reach,30,260) || !okNum(c.rot,0,60) || !okNum(c.pain,0,10)) continue;
+        const fn={}; for(const i of FN_ITEMS) if([0,1,2].includes((c.fn||{})[i.id])) fn[i.id]=c.fn[i.id];
+        DB.shoulderChecks.push({d:c.d, t:+c.t||Date.now(), reach:c.reach??null, rot:c.rot??null, pain:c.pain??null, fn});
+        addedChecks++;
+      }
       save(); renderHome(); mirrorReminderState();
-      toast(`Merged ${added} session${added===1?'':'s'}${addedHabits?` and ${addedHabits} habit${addedHabits===1?'':'s'}`:''} ✓`);
+      const extra=[addedHabits?`${addedHabits} habit${addedHabits===1?'':'s'}`:'', addedChecks?`${addedChecks} progress check${addedChecks===1?'':'s'}`:''].filter(Boolean).join(' and ');
+      toast(`Merged ${added} session${added===1?'':'s'}${extra?` and ${extra}`:''} ✓`);
     }catch(e){ toast('That file doesn\'t look like a Bloom backup') }
   };
   r.readAsText(f);

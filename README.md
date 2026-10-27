@@ -32,6 +32,12 @@ never push into sharp pain; any ache should settle within 30 minutes. After each
 how it felt. Two "too painful" sessions out of the last three trigger a reminder to ease off and check with a
 doctor or physio. The log is on the Progress tab, so you can show it to your physiotherapist.
 
+**Weekly progress check (2 minutes):** wall reach in cm (optionally compared with your right arm), how far the
+left hand turns outward (tap the closest angle), four everyday tasks (yes / partly / no), and worst pain this
+week. The first check is your baseline. Progress → Shoulder charts each measure separately, with a table view.
+Bloom flags two situations: worst pain 3+ points above baseline (right away), or no measurable improvement
+across 6 weeks of checks — both are reasons to see your doctor rather than wait.
+
 ### 3. Habits — one quick check-in a day
 
 Track anything, in two kinds:
