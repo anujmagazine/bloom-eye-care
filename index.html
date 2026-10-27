@@ -24,7 +24,8 @@
   }
   .p-eyes{--acc:#e2a25c; --acc2:#f0bd82; --btn1:#8a5f30; --btn2:#6e4a24; --btnb:#a5713a}
   .p-shoulder{--acc:#76b3aa; --acc2:#a6d3cb; --btn1:#3d6c66; --btn2:#2c524d; --btnb:#5b8f87}
-  .p-eyes,.p-shoulder{
+  .p-habits{--acc:#94b38f; --acc2:#bdd6b7; --btn1:#4d6a48; --btn2:#3a5136; --btnb:#6a8a64}
+  .p-eyes,.p-shoulder,.p-habits{
     --accbg:color-mix(in srgb, var(--acc) 10%, transparent);
     --accline:color-mix(in srgb, var(--acc) 36%, transparent);
   }
@@ -58,6 +59,7 @@
     background:linear-gradient(155deg,var(--accbg),transparent 55%),var(--card);
     animation:rise .5s cubic-bezier(.2,.8,.3,1) both}
   .prog:nth-child(3){animation-delay:.08s}
+  .prog:nth-child(4){animation-delay:.16s}
   @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
   .prog-head{display:flex;gap:14px;align-items:center}
   .prog-ico{width:52px;height:52px;border-radius:16px;flex:none;display:flex;align-items:center;justify-content:center;
@@ -93,6 +95,46 @@
   .slot.done{background:var(--accbg);border-color:var(--accline);color:var(--acc2)}
   .slot.done b{color:var(--acc2)}
   .slot.due{outline:1.5px solid var(--acc);outline-offset:1px}
+
+  /* ---------- habits ---------- */
+  .hb-list{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+  .hb-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:var(--card2);border:1px solid var(--line)}
+  .hb-emoji{font-size:22px;width:30px;text-align:center;flex:none}
+  .hb-name{font-size:15px;font-weight:600;line-height:1.25}
+  .hb-meta{font-size:12.5px;color:var(--dim)}
+  .hb-meta b{color:var(--acc2);font-weight:600}
+  .hb-check{margin-left:auto;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line2);flex:none;font-size:18px;color:transparent;transition:.2s}
+  .hb-check.on{background:var(--acc);border-color:var(--acc);color:#1b2419}
+  .hb-slip{margin-left:auto;flex:none;font-size:12.5px;padding:7px 12px;border-radius:999px;border:1px solid var(--line2);color:var(--dim)}
+  .hb-slip.on{border-color:rgba(207,141,126,.5);color:#e3b3a7;background:rgba(207,141,126,.1)}
+  .hb-empty{font-size:13.5px;color:var(--dim);margin-top:14px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .chip{font-size:13px;padding:7px 12px;border-radius:999px;border:1px dashed var(--accline);color:var(--acc2)}
+  .strip{display:grid;grid-template-columns:repeat(30,1fr);gap:2px;margin-top:10px}
+  .strip i{height:14px;border-radius:3px;background:var(--card2)}
+  .strip i.ok{background:color-mix(in srgb,var(--acc) 60%,transparent)}
+  .strip i.slip{background:rgba(207,141,126,.75)}
+  .strip i.none{background:transparent;border:1px dashed var(--line)}
+  .hcal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:6px}
+  .hcal button{aspect-ratio:1;border-radius:9px;background:var(--card2);border:1px solid var(--line);font-size:11.5px;color:var(--faint)}
+  .hcal button.ok{background:color-mix(in srgb,var(--acc) 30%,transparent);border-color:var(--accline);color:var(--acc2)}
+  .hcal button.slip{background:rgba(207,141,126,.18);border-color:rgba(207,141,126,.5);color:#e3b3a7}
+  .hcal button.none{opacity:.4}
+  .hcal button.today{outline:1.5px solid var(--acc);outline-offset:1px}
+  .hcal button:disabled{opacity:.12;cursor:default}
+  .hstats{display:flex;gap:8px;margin-top:12px}
+  .hstats div{flex:1;text-align:center;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:8px 4px}
+  .hstats b{display:block;font-family:var(--serif);font-size:19px;color:var(--acc2);font-weight:600}
+  .hstats span{font-size:10.5px;color:var(--faint);letter-spacing:.4px}
+  .hb-form{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+  .hb-form .r{display:flex;gap:8px}
+  input.txt{background:var(--card2);color:var(--text);border:1px solid var(--line2);border-radius:12px;padding:11px 12px;font-size:15px;font-family:inherit;width:100%;color-scheme:dark}
+  input.emo{width:58px;text-align:center;font-size:20px;flex:none}
+  .hb-head{display:flex;align-items:center;gap:10px}
+  .hb-head .kind{margin-left:auto;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--faint)}
+  .hb-actions{display:flex;gap:8px;margin-top:12px}
+  .mini{font-size:12.5px;padding:6px 12px;border-radius:999px;border:1px solid var(--line2);color:var(--dim)}
+  .mini.danger{color:#e3b3a7;border-color:rgba(207,141,126,.4)}
 
   /* ---------- exercise rows (sheet) ---------- */
   .ex-row{display:flex;align-items:center;gap:14px;padding:13px 4px;border-bottom:1px solid var(--line)}
@@ -266,7 +308,21 @@
       </div>
     </div>
 
-    <div class="note" style="margin:4px 6px">Both routines support — never replace — the treatment your doctors prescribed. Tap <b>Details</b> on either card for how to do each exercise, how often, and when to call your doctor.</div>
+    <div class="prog p-habits">
+      <div class="prog-head">
+        <div class="prog-ico"><svg viewBox="0 0 40 40" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="8" width="28" height="26" rx="5"/><path d="M6 16h28M13 5v6M27 5v6M14 25l4 4 8-8"/></svg></div>
+        <div><div class="prog-title">Habits</div><div class="prog-sub">One quick check-in a day</div></div>
+        <div class="streak-badge"><div class="n" id="hb-tally">—</div><div class="k" id="hb-tally-k">today</div></div>
+      </div>
+      <div id="hb-list" class="hb-list"></div>
+      <div class="status" id="hb-status"><div class="dot"></div><div id="hb-status-text"></div></div>
+      <div class="prog-actions" id="hb-actions">
+        <button class="btn-acc" onclick="habitCheckIn()">Check in for today<small>Everything above is up to date</small></button>
+        <button class="btn-ghost" onclick="openSheet('habits')">Manage</button>
+      </div>
+    </div>
+
+    <div class="note" style="margin:4px 6px">The exercise routines support — never replace — the treatment your doctors prescribed. Tap <b>Details</b> on either card for how to do each exercise, how often, and when to call your doctor.</div>
   </div>
 
   <!-- ============ PROGRESS ============ -->
@@ -274,7 +330,9 @@
     <div class="seg" id="prog-seg">
       <button data-p="eyes" onclick="setProgressProgram('eyes')">Dry eye</button>
       <button data-p="shoulder" onclick="setProgressProgram('shoulder')">Shoulder</button>
+      <button data-p="habits" onclick="setProgressProgram('habits')">Habits</button>
     </div>
+    <div id="habits-progress" class="hidden p-habits"></div>
     <div id="progress-body" class="p-eyes">
       <div class="stat-row">
         <div class="stat"><div class="v" id="st-streak">0</div><div class="k">day streak</div></div>
@@ -331,6 +389,22 @@
         <button class="toggle" id="tg-sh-remind" onclick="toggleShoulderRemind(this)"></button>
       </div>
       <div id="sh-time-rows"></div>
+    </div>
+
+    <div class="section-label">Habits</div>
+    <div class="card p-habits">
+      <div class="set-row">
+        <div><div class="lbl">Evening check-in reminder</div><div class="hint">Only if you haven't checked in that day</div></div>
+        <button class="toggle" id="tg-hb-remind" onclick="toggleHabitRemind(this)"></button>
+      </div>
+      <div class="set-row">
+        <div class="lbl">Reminder time</div>
+        <select id="hb-time" onchange="saveHabitTime(this.value)"></select>
+      </div>
+      <div class="set-row">
+        <div><div class="lbl">Your habits</div><div class="hint">Add, rename, delete, or fix past days</div></div>
+        <button class="pill-btn" onclick="openSheet('habits')">Manage</button>
+      </div>
     </div>
 
     <div class="section-label">Notifications &amp; guidance</div>
@@ -636,11 +710,16 @@ const slotOf = h => h<12 ? 0 : h<17 ? 1 : 2;
 const KEY='dusk-eye-care-v1'; // original key kept so existing history carries over
 function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {} }catch(e){ return {} } }
 function save(){ localStorage.setItem(KEY, JSON.stringify(DB)) }
-const SETTINGS_DEFAULT = {remind:true, sound:true, voice:true, notify:false, whStart:9, whEnd:18, enabled:{}, shoulder:{remind:true, times:[8,14,20]}};
-const DB = Object.assign({sessions:[], lastReminderHour:null, lastShoulderReminder:null}, load());
+const SETTINGS_DEFAULT = {remind:true, sound:true, voice:true, notify:false, whStart:9, whEnd:18, enabled:{},
+  shoulder:{remind:true, times:[8,14,20]}, habits:{remind:true, time:21}};
+/* habits: [{id, name, emoji, kind:'build'|'avoid', created:'YYYY-MM-DD'}]
+   habitLog[id][day] = 1 means "did it" for build habits, "slipped" for avoid habits. */
+const DB = Object.assign({sessions:[], lastReminderHour:null, lastShoulderReminder:null,
+  habits:[], habitLog:{}, habitTouched:null, lastHabitReminder:null}, load());
 DB.settings = Object.assign({}, SETTINGS_DEFAULT, DB.settings);
 DB.settings.enabled = Object.assign(Object.fromEntries(EYE_EXERCISES.map(e=>[e.id,true])), DB.settings.enabled);
 DB.settings.shoulder = Object.assign({}, SETTINGS_DEFAULT.shoulder, DB.settings.shoulder);
+DB.settings.habits = Object.assign({}, SETTINGS_DEFAULT.habits, DB.settings.habits);
 
 const pad2 = n => String(n).padStart(2,'0');
 const dkey = d => d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
@@ -680,6 +759,139 @@ function calcBest(pid){
     best=Math.max(best,run); prev=cur;
   }
   return best;
+}
+
+/* =================================================================
+   HABITS
+   ================================================================= */
+const HABIT_SUGGESTIONS = [
+  {emoji:'🍷', name:'Alcohol', kind:'avoid'},
+  {emoji:'🚶', name:'Walk 30 minutes', kind:'build'},
+  {emoji:'💧', name:'Eye drops as prescribed', kind:'build'},
+  {emoji:'😴', name:'In bed by 11', kind:'build'},
+  {emoji:'📵', name:'Phone out of the bedroom', kind:'build'}
+];
+const esc = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const addDays = (key,n) => { const d=new Date(key+'T12:00'); d.setDate(d.getDate()+n); return dkey(d) };
+const daysBetween = (a,b) => Math.round((new Date(b+'T12:00')-new Date(a+'T12:00'))/86400000);
+const habitById = id => DB.habits.find(h=>h.id===id);
+const isMarked = (h,key) => !!(DB.habitLog[h.id]||{})[key];
+
+function dayStatus(h,key){
+  if(key<h.created || key>todayStr()) return 'none';
+  const m=isMarked(h,key);
+  if(h.kind==='avoid') return m?'slip':'ok';
+  return m?'ok':(key===todayStr()?'pending':'miss');
+}
+function buildStreak(h){
+  let k=todayStr(), n=0;
+  if(!isMarked(h,k)) k=addDays(k,-1); // today not done yet doesn't break it
+  while(k>=h.created && isMarked(h,k)){ n++; k=addDays(k,-1) }
+  return n;
+}
+function lastSlip(h){ return Object.keys(DB.habitLog[h.id]||{}).sort().at(-1) || null }
+function cleanDays(h){
+  const ls=lastSlip(h);
+  return ls ? daysBetween(ls,todayStr()) : daysBetween(h.created,todayStr())+1;
+}
+function bestRun(h){
+  let best=0, run=0;
+  for(let k=h.created; k<=todayStr(); k=addDays(k,1)){
+    if(dayStatus(h,k)==='ok'){ run++; best=Math.max(best,run) }
+    else if(dayStatus(h,k)!=='pending') run=0;
+  }
+  return best;
+}
+function rate30(h){
+  const today=todayStr();
+  let start=addDays(today,-29); if(start<h.created) start=h.created;
+  let ok=0, n=0;
+  for(let k=start; k<=today; k=addDays(k,1)){
+    const s=dayStatus(h,k);
+    if(s==='pending') continue;
+    n++; if(s==='ok') ok++;
+  }
+  return n ? Math.round(ok/n*100) : 0;
+}
+function habitHeadline(h){
+  if(h.kind==='build'){
+    const s=buildStreak(h);
+    return s ? `🔥 <b>${s}</b>-day streak` : (isMarked(h,todayStr()) ? 'Done today' : 'Not yet today');
+  }
+  if(isMarked(h,todayStr())) return 'Logged today · fresh start tomorrow';
+  const c=cleanDays(h);
+  return `<b>${c}</b> day${c===1?'':'s'} ${lastSlip(h)?'since last time':'clean so far'}`;
+}
+
+function toggleHabitDay(id,key){
+  const h=habitById(id); if(!h || key>todayStr()) return;
+  const log=DB.habitLog[id] || (DB.habitLog[id]={});
+  if(log[key]) delete log[key]; else log[key]=1;
+  if(key<h.created) h.created=key; // backfilling earlier days extends the habit's history
+  if(key===todayStr()) DB.habitTouched=todayStr();
+  save(); mirrorReminderState(); refreshHabitViews();
+}
+function habitCheckIn(){
+  DB.habitTouched=todayStr(); save(); mirrorReminderState();
+  toast('Checked in ✓ — see you tomorrow');
+  renderHome();
+}
+let newHabitKind='build';
+function setHabitKind(k){
+  newHabitKind=k;
+  document.querySelectorAll('#hb-kind button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+  document.getElementById('hb-last-wrap').classList.toggle('hidden',k!=='avoid');
+  document.getElementById('hb-name').placeholder = k==='avoid' ? 'e.g. Alcohol' : 'e.g. Walk 30 minutes';
+}
+function prefillHabit(i){
+  const s=HABIT_SUGGESTIONS[i];
+  if(currentSheet!=='habits') openSheet('habits');
+  document.getElementById('hb-emoji').value=s.emoji;
+  document.getElementById('hb-name').value=s.name;
+  setHabitKind(s.kind);
+  document.getElementById('hb-name').focus();
+}
+function addHabit(){
+  const name=document.getElementById('hb-name').value.trim();
+  if(!name){ toast('Give the habit a name'); return }
+  const emoji=document.getElementById('hb-emoji').value.trim() || (newHabitKind==='avoid'?'🚫':'✅');
+  const h={id:'h'+Date.now().toString(36), name, emoji, kind:newHabitKind, created:todayStr()};
+  DB.habitLog[h.id]={};
+  const last=document.getElementById('hb-last').value;
+  if(newHabitKind==='avoid' && last && last<=todayStr()){ h.created=last; DB.habitLog[h.id][last]=1 }
+  DB.habits.push(h);
+  save(); mirrorReminderState();
+  toast(`Added ${emoji} ${name}`);
+  newHabitKind='build';
+  refreshHabitViews(true);
+}
+function renameHabit(id){
+  const h=habitById(id); if(!h) return;
+  const name=prompt('Rename habit', h.name);
+  if(name && name.trim()){ h.name=name.trim(); save(); refreshHabitViews() }
+}
+function deleteHabit(id){
+  const h=habitById(id); if(!h) return;
+  if(!confirm(`Delete "${h.name}" and all its history? This can't be undone.`)) return;
+  DB.habits=DB.habits.filter(x=>x.id!==id);
+  delete DB.habitLog[id];
+  save(); mirrorReminderState(); refreshHabitViews();
+}
+function refreshHabitViews(resetForm){
+  renderHome();
+  if(currentSheet==='habits'){
+    const sheet=document.getElementById('sheet'), y=sheet.scrollTop;
+    const form = resetForm ? null : {e:document.getElementById('hb-emoji').value, n:document.getElementById('hb-name').value, l:document.getElementById('hb-last').value};
+    openSheet('habits');
+    sheet.scrollTop=y;
+    if(form){
+      document.getElementById('hb-emoji').value=form.e;
+      document.getElementById('hb-name').value=form.n;
+      document.getElementById('hb-last').value=form.l;
+      setHabitKind(newHabitKind);
+    }
+  }
+  if(!document.getElementById('view-progress').classList.contains('hidden')) renderProgress();
 }
 
 /* =================================================================
@@ -726,10 +938,50 @@ function renderHome(){
   const h=new Date().getHours();
   const hello = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
   const eyesN=todayOf('eyes').length, shN=shoulderDoneSlots().size;
+  const builds=DB.habits.filter(x=>x.kind==='build');
+  const habitsPart = builds.length ? ` · ${builds.filter(x=>isMarked(x,todayStr())).length}/${builds.length} habits` : '';
   document.getElementById('greet').textContent =
-    `${hello}. Today: ${eyesN} eye break${eyesN===1?'':'s'} · ${shN} of 3 shoulder sessions.`;
+    `${hello}. Today: ${eyesN} eye break${eyesN===1?'':'s'} · ${shN} of 3 shoulder sessions${habitsPart}.`;
   renderEyesCard();
   renderShoulderCard();
+  renderHabitsCard();
+}
+
+function renderHabitsCard(){
+  const today=todayStr(), list=document.getElementById('hb-list');
+  const tally=document.getElementById('hb-tally'), tallyK=document.getElementById('hb-tally-k');
+  document.getElementById('hb-actions').classList.toggle('hidden', !DB.habits.length);
+  document.getElementById('hb-status').classList.toggle('hidden', !DB.habits.length);
+  if(!DB.habits.length){
+    tally.textContent='—'; tallyK.textContent='today';
+    list.innerHTML=`<div class="hb-empty">Track anything — a habit to build, or one to cut back on. Start with one:</div>
+      <div class="chips">${HABIT_SUGGESTIONS.map((s,i)=>`<button class="chip" onclick="prefillHabit(${i})">${s.emoji} ${esc(s.name)}</button>`).join('')}
+      <button class="chip" onclick="openSheet('habits')">＋ Your own</button></div>`;
+    return;
+  }
+  const builds=DB.habits.filter(h=>h.kind==='build');
+  if(builds.length){
+    tally.textContent=`${builds.filter(h=>isMarked(h,today)).length}/${builds.length}`;
+    tallyK.textContent='done today';
+  } else {
+    tally.textContent=`${DB.habits.filter(h=>!isMarked(h,today)).length}/${DB.habits.length}`;
+    tallyK.textContent='on track';
+  }
+  list.innerHTML=DB.habits.map(h=>{
+    const on=isMarked(h,today);
+    const btn = h.kind==='build'
+      ? `<button class="hb-check ${on?'on':''}" aria-label="Mark ${esc(h.name)} done today" onclick="toggleHabitDay('${h.id}','${today}')">✓</button>`
+      : `<button class="hb-slip ${on?'on':''}" onclick="toggleHabitDay('${h.id}','${today}')">${on?'Undo':'Had it today'}</button>`;
+    return `<div class="hb-row"><div class="hb-emoji">${esc(h.emoji)}</div>
+      <div><div class="hb-name">${esc(h.name)}</div><div class="hb-meta">${habitHeadline(h)}</div></div>${btn}</div>`;
+  }).join('');
+
+  const st=document.getElementById('hb-status'), txt=document.getElementById('hb-status-text');
+  st.classList.remove('due');
+  const t=DB.settings.habits.time;
+  if(DB.habitTouched===today) txt.textContent='Checked in today ✓';
+  else if(new Date().getHours()>=t){ st.classList.add('due'); txt.textContent='Evening check-in is due' }
+  else txt.textContent = DB.settings.habits.remind ? `Check-in reminder at ${t}:00` : 'Check in whenever you like';
 }
 
 function renderEyesCard(){
@@ -804,7 +1056,69 @@ function exerciseRows(pid){
     </div>`;
   }).join('');
 }
+function habitCalendar(h){
+  const today=todayStr(), d=new Date();
+  const monday=addDays(today, -((d.getDay()+6)%7));
+  const start=addDays(monday,-28);
+  let cells='';
+  for(let i=0;i<35;i++){
+    const k=addDays(start,i), s=dayStatus(h,k);
+    const future=k>today;
+    const cls=future?'':(s==='pending'?'':s==='miss'?'':s);
+    cells+=`<button class="${cls} ${k===today?'today':''}" ${future?'disabled':''} title="${k}" onclick="toggleHabitDay('${h.id}','${k}')">${+k.slice(8)}</button>`;
+  }
+  return `<div class="cal-head" style="margin-top:12px"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div><div class="hcal">${cells}</div>`;
+}
+function habitStats(h){
+  const main = h.kind==='build' ? [buildStreak(h),'day streak'] : [isMarked(h,todayStr())?0:cleanDays(h),'days clean'];
+  return `<div class="hstats"><div><b>${main[0]}</b><span>${main[1]}</span></div>
+    <div><b>${bestRun(h)}</b><span>best run</span></div>
+    <div><b>${rate30(h)}%</b><span>last 30 days</span></div></div>`;
+}
+function habitsSheetHtml(){
+  const k=newHabitKind;
+  const habits = DB.habits.map(h=>`
+    <div class="info">
+      <div class="hb-head"><span style="font-size:22px">${esc(h.emoji)}</span><h3 style="margin:0">${esc(h.name)}</h3>
+        <span class="kind">${h.kind==='build'?'build':'avoid'}</span></div>
+      <div class="hb-meta" style="margin-top:4px">${habitHeadline(h)}</div>
+      ${habitStats(h)}
+      ${habitCalendar(h)}
+      <div class="hb-actions"><button class="mini" onclick="renameHabit('${h.id}')">Rename</button><button class="mini danger" onclick="deleteHabit('${h.id}')">Delete</button></div>
+    </div>`).join('');
+  const unused=HABIT_SUGGESTIONS.map((s,i)=>[s,i]).filter(([s])=>!DB.habits.some(h=>h.name.toLowerCase()===s.name.toLowerCase()));
+  return `
+    <div class="sheet-title">Habits</div>
+    <div class="sheet-sub">Build good ones, cut back on others. Tap any day on a calendar to fix it — ${DB.habits.some(h=>h.kind==='avoid')?'for avoid habits, a marked day means it happened.':'a marked day means you did it.'}</div>
+    ${habits}
+    <div class="info">
+      <h3>Add a habit</h3>
+      <div class="hb-form">
+        <div class="r"><input class="txt emo" id="hb-emoji" maxlength="4" value="${k==='avoid'?'🚫':'✅'}" aria-label="Emoji"><input class="txt" id="hb-name" maxlength="40" placeholder="${k==='avoid'?'e.g. Alcohol':'e.g. Walk 30 minutes'}" aria-label="Habit name"></div>
+        <div class="seg p-habits" id="hb-kind" style="margin:0">
+          <button data-k="build" class="${k==='build'?'on':''}" onclick="setHabitKind('build')">Build — do it daily</button>
+          <button data-k="avoid" class="${k==='avoid'?'on':''}" onclick="setHabitKind('avoid')">Avoid — log slips</button>
+        </div>
+        <div id="hb-last-wrap" class="${k==='avoid'?'':'hidden'}">
+          <div class="hint" style="font-size:12.5px;color:var(--faint);margin-bottom:6px">When was the last time? (optional — starts your "days clean" count from there)</div>
+          <input type="date" class="txt" id="hb-last" max="${todayStr()}">
+        </div>
+        <button class="btn-acc" onclick="addHabit()">Add habit</button>
+      </div>
+      ${unused.length?`<div class="chips">${unused.map(([s,i])=>`<button class="chip" onclick="prefillHabit(${i})">${s.emoji} ${esc(s.name)}</button>`).join('')}</div>`:''}
+    </div>
+    <div class="note">Build habits: tick the days you did it. Avoid habits: every day counts as clean unless you log that it happened.</div>`;
+}
+let currentSheet=null;
 function openSheet(pid){
+  currentSheet=pid;
+  if(pid==='habits'){
+    document.getElementById('sheet-body').innerHTML=habitsSheetHtml();
+    const sheet=document.getElementById('sheet');
+    sheet.className='p-habits';
+    sheet.scrollTop=0;
+    return;
+  }
   const body = pid==='eyes' ? `
     <div class="sheet-title">Dry Eye Care</div>
     <div class="sheet-sub">One short break every working hour.</div>
@@ -841,7 +1155,7 @@ function openSheet(pid){
   sheet.className='p-'+pid;
   sheet.scrollTop=0;
 }
-function closeSheet(){ document.getElementById('sheet').classList.add('hidden') }
+function closeSheet(){ currentSheet=null; newHabitKind='build'; document.getElementById('sheet').classList.add('hidden'); renderHome() }
 
 /* =================================================================
    REMINDER STATE MIRROR (for the service worker, which can't read localStorage)
@@ -863,7 +1177,8 @@ async function mirrorReminderState(){
       const tx=db.transaction('state','readwrite');
       tx.objectStore('state').put({
         remind:DB.settings.remind, whStart:DB.settings.whStart, whEnd:DB.settings.whEnd, today:todayStr(), doneHours,
-        sRemind:DB.settings.shoulder.remind, sTimes:DB.settings.shoulder.times, sDoneSlots:[...shoulderDoneSlots()]
+        sRemind:DB.settings.shoulder.remind, sTimes:DB.settings.shoulder.times, sDoneSlots:[...shoulderDoneSlots()],
+        hRemind:DB.settings.habits.remind && DB.habits.length>0, hTime:DB.settings.habits.time, hTouched:DB.habitTouched===todayStr()
       }, 'reminder');
       tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
     });
@@ -936,11 +1251,21 @@ function tickShoulder(now){
   chime(520,.3); setTimeout(()=>chime(700,.3),350);
   notify('Bloom — shoulder session',`Your ${SLOTS[i].label.toLowerCase()} session: 3 gentle exercises, about 5 minutes.`,'bloom-shoulder');
 }
+function tickHabits(now){
+  const hs=DB.settings.habits, today=todayStr();
+  if(!hs.remind || !DB.habits.length || now.getHours()<hs.time) return;
+  if(DB.habitTouched===today || DB.lastHabitReminder===today) return;
+  DB.lastHabitReminder=today; save();
+  toast('🌱 Time for your evening habit check-in');
+  chime(600,.3); setTimeout(()=>chime(800,.3),350);
+  notify('Bloom — habit check-in','Take 10 seconds to log today\'s habits.','bloom-habits');
+}
 function tickReminder(){
   const now=new Date();
   document.getElementById('clock').textContent=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   tickEyes(now);
   tickShoulder(now);
+  tickHabits(now);
   if(!document.getElementById('view-home').classList.contains('hidden')) renderHome();
   mirrorReminderState();
 }
@@ -1251,10 +1576,38 @@ function closePlayer(){
    ================================================================= */
 let progressProgram='eyes';
 function setProgressProgram(pid){ progressProgram=pid; renderProgress() }
+function renderHabitsProgress(){
+  const el=document.getElementById('habits-progress');
+  if(!DB.habits.length){
+    el.innerHTML=`<div class="info">No habits yet. <button class="mini" style="margin-left:6px" onclick="openSheet('habits')">Add your first habit</button></div>`;
+    return;
+  }
+  const today=todayStr();
+  el.innerHTML=DB.habits.map(h=>{
+    let strip='';
+    for(let i=29;i>=0;i--){
+      const s=dayStatus(h,addDays(today,-i));
+      strip+=`<i class="${s==='ok'?'ok':s==='slip'?'slip':s==='none'?'none':''}"></i>`;
+    }
+    return `<div class="info" style="cursor:pointer" onclick="openSheet('habits')">
+      <div class="hb-head"><span style="font-size:22px">${esc(h.emoji)}</span><h3 style="margin:0">${esc(h.name)}</h3><span class="kind">${h.kind}</span></div>
+      ${habitStats(h)}
+      <div class="strip" title="Last 30 days, oldest on the left">${strip}</div>
+      <div class="feel-legend">Last 30 days → today. ${h.kind==='build'?'Green = done.':'Green = clean, red = it happened.'}</div>
+    </div>`;
+  }).join('');
+}
 function renderProgress(){
   const pid=progressProgram;
   document.querySelectorAll('#prog-seg button').forEach(b=>b.classList.toggle('on',b.dataset.p===pid));
   document.getElementById('prog-seg').className='seg p-'+pid;
+  const isHabits=pid==='habits';
+  document.getElementById('habits-progress').classList.toggle('hidden',!isHabits);
+  if(isHabits){
+    document.getElementById('progress-body').className='hidden';
+    renderHabitsProgress();
+    return;
+  }
   document.getElementById('progress-body').className='p-'+pid;
   const streak=calcStreak(pid);
   document.getElementById('st-streak').textContent=streak;
@@ -1303,6 +1656,10 @@ function renderSettings(){
   document.getElementById('tg-sound').classList.toggle('on',DB.settings.sound);
   document.getElementById('tg-voice').classList.toggle('on',DB.settings.voice);
   document.getElementById('tg-sh-remind').classList.toggle('on',DB.settings.shoulder.remind);
+  document.getElementById('tg-hb-remind').classList.toggle('on',DB.settings.habits.remind);
+  const ht=document.getElementById('hb-time');
+  if(!ht.options.length) for(let h=17;h<=23;h++) ht.add(new Option(h+':00',h));
+  ht.value=DB.settings.habits.time;
   document.getElementById('tg-notify').classList.toggle('on',
     DB.settings.notify && 'Notification' in window && Notification.permission==='granted');
   const s=document.getElementById('wh-start'), e=document.getElementById('wh-end');
@@ -1334,6 +1691,15 @@ function toggleShoulderRemind(btn){
   btn.classList.toggle('on',DB.settings.shoulder.remind);
   mirrorReminderState();
 }
+function toggleHabitRemind(btn){
+  DB.settings.habits.remind=!DB.settings.habits.remind; save();
+  btn.classList.toggle('on',DB.settings.habits.remind);
+  mirrorReminderState();
+}
+function saveHabitTime(v){
+  DB.settings.habits.time=+v; save();
+  mirrorReminderState();
+}
 function saveShoulderTime(i,v){
   DB.settings.shoulder.times[i]=+v; save();
   mirrorReminderState();
@@ -1354,7 +1720,7 @@ function saveWorkHours(){
 
 /* ---------- export / import ---------- */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'bloom',exported:new Date().toISOString(),sessions:DB.sessions},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'bloom',exported:new Date().toISOString(),sessions:DB.sessions,habits:DB.habits,habitLog:DB.habitLog},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   a.download='bloom-progress-'+todayStr()+'.json';
@@ -1374,8 +1740,17 @@ function importData(input){
         if(s && s.d && s.t && !seen.has(s.t)){ DB.sessions.push(s); added++ }
       }
       DB.sessions.sort((a,b)=>a.t-b.t);
+      let addedHabits=0;
+      for(const h of (Array.isArray(data.habits)?data.habits:[])){
+        if(!h || !h.id || !h.name || !['build','avoid'].includes(h.kind) || !/^\d{4}-\d{2}-\d{2}$/.test(h.created)) continue;
+        const mine=habitById(h.id);
+        if(!mine){ DB.habits.push({id:h.id, name:String(h.name).slice(0,40), emoji:String(h.emoji||'✅').slice(0,4), kind:h.kind, created:h.created}); addedHabits++ }
+        else if(h.created<mine.created) mine.created=h.created;
+        const log=DB.habitLog[h.id] || (DB.habitLog[h.id]={});
+        for(const day of Object.keys((data.habitLog||{})[h.id]||{})) if(/^\d{4}-\d{2}-\d{2}$/.test(day)) log[day]=1;
+      }
       save(); renderHome(); mirrorReminderState();
-      toast(`Merged ${added} session${added===1?'':'s'} ✓`);
+      toast(`Merged ${added} session${added===1?'':'s'}${addedHabits?` and ${addedHabits} habit${addedHabits===1?'':'s'}`:''} ✓`);
     }catch(e){ toast('That file doesn\'t look like a Bloom backup') }
   };
   r.readAsText(f);

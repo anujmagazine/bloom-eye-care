@@ -32,6 +32,18 @@ never push into sharp pain; any ache should settle within 30 minutes. After each
 how it felt. Two "too painful" sessions out of the last three trigger a reminder to ease off and check with a
 doctor or physio. The log is on the Progress tab, so you can show it to your physiotherapist.
 
+### 3. Habits — one quick check-in a day
+
+Track anything, in two kinds:
+
+- **Build** (e.g. walk 30 minutes, eye drops as prescribed): tick the days you did it. Shows a day streak.
+- **Avoid** (e.g. alcohol): every day counts as clean unless you log that it happened. Shows "N days since last
+  time". When adding one, you can enter the last time it happened so the count starts from there.
+
+Tap any past day on a habit's calendar (Manage) to fix it. Progress → Habits shows each habit's streak, best run,
+30-day success rate, and a 30-day strip. An evening reminder (time set in Settings) nudges you only if you haven't
+checked in that day.
+
 ## Installing
 
 Open the live site, then Settings → **Install Bloom as an app** (or the install icon in the address bar on

@@ -3,7 +3,7 @@
    Reads mirrored reminder state from IndexedDB (service workers can't see
    the page's localStorage), since periodicsync can fire with no page open. */
 
-const CACHE = 'bloom-shell-v3';
+const CACHE = 'bloom-shell-v4';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-512-maskable.png'];
 
 self.addEventListener('install', event => {
@@ -82,6 +82,13 @@ async function checkAndNotify() {
         icon: 'icon-192.png', badge: 'icon-192.png', tag: 'bloom-shoulder'
       });
     }
+  }
+
+  if (st.hRemind && h >= st.hTime && !(isToday && st.hTouched)) {
+    await self.registration.showNotification('Bloom — habit check-in', {
+      body: "Take 10 seconds to log today's habits.",
+      icon: 'icon-192.png', badge: 'icon-192.png', tag: 'bloom-habits'
+    });
   }
 }
 
