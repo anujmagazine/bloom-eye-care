@@ -5,6 +5,13 @@ goal. Installable as a real app on Windows/Mac and Android. No internet, no acco
 
 Live: https://anujmagazine.github.io/bloom-eye-care/
 
+## Plans — start small, step up
+
+Bloom starts on the **Starter** plan: 1 shoulder session + 1 eye break a day, with just two reminders (morning,
+and an evening follow-up only if something's left). After 14 days with at least 12 days on target, it offers
+**Building** (2 shoulder sessions + 3 eye breaks a day), and later **Full** (3 shoulder sessions + an eye break
+every working hour). You choose when to step up — or switch any time in Settings → Your plan.
+
 ## Programs
 
 ### 1. Dry Eye Care — one short break every working hour

@@ -3,7 +3,7 @@
    Reads mirrored reminder state from IndexedDB (service workers can't see
    the page's localStorage), since periodicsync can fire with no page open. */
 
-const CACHE = 'bloom-shell-v4';
+const CACHE = 'bloom-shell-v5';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-512-maskable.png'];
 
 self.addEventListener('install', event => {
@@ -63,6 +63,30 @@ async function checkAndNotify() {
   const h = new Date().getHours();
   const isToday = st.today === todayStrNow();
 
+  // Starter/Building plans: one combined routine reminder instead of hourly + slot reminders.
+  if (st.level && st.level < 3) {
+    if (Array.isArray(st.pTimes) && h >= st.pTimes[0]) {
+      const left = isToday ? st.pLeft : 'your shoulder session and eye break';
+      if (left) {
+        await self.registration.showNotification(h >= st.pTimes[1] ? 'Bloom — still to do today' : "Bloom — today's routine", {
+          body: `Today: ${left}. About 10 minutes.`,
+          icon: 'icon-192.png', badge: 'icon-192.png', tag: 'bloom-plan'
+        });
+      }
+    }
+  } else {
+    await checkFullPlan(st, h, isToday);
+  }
+
+  if (st.hRemind && h >= st.hTime && !(isToday && st.hTouched)) {
+    await self.registration.showNotification('Bloom — habit check-in', {
+      body: "Take 10 seconds to log today's habits.",
+      icon: 'icon-192.png', badge: 'icon-192.png', tag: 'bloom-habits'
+    });
+  }
+}
+
+async function checkFullPlan(st, h, isToday) {
   if (st.remind && h >= st.whStart && h < st.whEnd) {
     const doneHours = isToday ? (st.doneHours || []) : [];
     if (!doneHours.includes(h)) {
@@ -82,13 +106,6 @@ async function checkAndNotify() {
         icon: 'icon-192.png', badge: 'icon-192.png', tag: 'bloom-shoulder'
       });
     }
-  }
-
-  if (st.hRemind && h >= st.hTime && !(isToday && st.hTouched)) {
-    await self.registration.showNotification('Bloom — habit check-in', {
-      body: "Take 10 seconds to log today's habits.",
-      icon: 'icon-192.png', badge: 'icon-192.png', tag: 'bloom-habits'
-    });
   }
 }
 

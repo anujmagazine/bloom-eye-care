@@ -316,11 +316,12 @@
   <!-- ============ TODAY ============ -->
   <div id="view-home">
     <div class="greet" id="greet"></div>
+    <div class="info accent p-habits hidden" id="plan-offer"></div>
 
     <div class="prog p-eyes">
       <div class="prog-head">
         <div class="prog-ico"><svg viewBox="0 0 40 40" width="30" height="30"><path d="M4 20 Q20 5 36 20 Q20 35 4 20Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><circle cx="20" cy="20" r="5.5" fill="currentColor"/></svg></div>
-        <div><div class="prog-title">Dry Eye Care</div><div class="prog-sub">Hourly eye breaks while you work</div></div>
+        <div><div class="prog-title">Dry Eye Care</div><div class="prog-sub" id="eyes-sub">Hourly eye breaks while you work</div></div>
         <div class="streak-badge"><div class="n" id="eyes-streak">0</div><div class="k">day streak</div></div>
       </div>
       <div class="hours" id="hours"></div>
@@ -334,7 +335,7 @@
     <div class="prog p-shoulder">
       <div class="prog-head">
         <div class="prog-ico"><svg viewBox="0 0 40 40" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="13" cy="9" r="4"/><path d="M13 13.5V27M13 27l-4 10M13 27l4 10M13 16l12-4"/><path d="M27 5a13 13 0 0 1 7 13" stroke-dasharray="2.6 3.2"/></svg></div>
-        <div><div class="prog-title">Frozen Shoulder</div><div class="prog-sub">Left · 3 gentle sessions a day</div></div>
+        <div><div class="prog-title">Frozen Shoulder</div><div class="prog-sub" id="sh-sub">Left · 3 gentle sessions a day</div></div>
         <div class="streak-badge"><div class="n" id="sh-streak">0</div><div class="k">day streak</div></div>
       </div>
       <div class="slots" id="sh-slots"></div>
@@ -405,6 +406,22 @@
         <div><div class="lbl">Install Bloom as an app</div><div class="hint">Taskbar/home-screen icon + background reminders</div></div>
         <button class="pill-btn" onclick="installApp()">Install</button>
       </div>
+    </div>
+
+    <div class="section-label">Your plan</div>
+    <div class="card p-habits">
+      <div id="plan-levels" class="feel-opts" style="margin-top:0"></div>
+      <div id="plan-times">
+        <div class="set-row" style="margin-top:8px">
+          <div><div class="lbl">Morning reminder</div><div class="hint">Today's routine, in one notification</div></div>
+          <select id="plan-t0" onchange="savePlanTime(0,this.value)"></select>
+        </div>
+        <div class="set-row">
+          <div><div class="lbl">Evening follow-up</div><div class="hint">Only if something's still left to do</div></div>
+          <select id="plan-t1" onchange="savePlanTime(1,this.value)"></select>
+        </div>
+      </div>
+      <div class="note" id="plan-note"></div>
     </div>
 
     <div class="section-label">Dry eye care</div>
@@ -764,6 +781,8 @@ DB.settings = Object.assign({}, SETTINGS_DEFAULT, DB.settings);
 DB.settings.enabled = Object.assign(Object.fromEntries(EYE_EXERCISES.map(e=>[e.id,true])), DB.settings.enabled);
 DB.settings.shoulder = Object.assign({}, SETTINGS_DEFAULT.shoulder, DB.settings.shoulder);
 DB.settings.habits = Object.assign({}, SETTINGS_DEFAULT.habits, DB.settings.habits);
+DB.settings.plan = Object.assign({level:1, since:null, times:[9,18], snooze:null}, DB.settings.plan);
+DB.planReminded = DB.planReminded || [];
 
 const pad2 = n => String(n).padStart(2,'0');
 const dkey = d => d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
@@ -936,6 +955,63 @@ function refreshHabitViews(resetForm){
     }
   }
   if(!document.getElementById('view-progress').classList.contains('hidden')) renderProgress();
+}
+
+/* =================================================================
+   PLAN LEVELS — start small (once a day), step up when the habit holds.
+   Level 3 is the full schedule: hourly eye breaks + 3 shoulder slots.
+   ================================================================= */
+const PLAN_LEVELS = {
+  1:{name:'Starter',  eyes:1, shoulder:1, desc:'1 shoulder session + 1 eye break a day · about 10 minutes'},
+  2:{name:'Building', eyes:3, shoulder:2, desc:'2 shoulder sessions + 3 eye breaks a day'},
+  3:{name:'Full',     eyes:null, shoulder:3, desc:'3 shoulder sessions + an eye break every working hour'}
+};
+const STEP_UP_DAYS=14, STEP_UP_HITS=12;
+if(!DB.settings.plan.since) DB.settings.plan.since=todayStr();
+const planLevel = () => DB.settings.plan.level;
+const isLight = () => planLevel()<3;
+const plural = (n,w) => `${n} ${w}${n===1?'':'s'}`;
+function dayCount(pid,key){ return sessionsOf(pid).filter(s=>s.d===key).length }
+function goalMetOn(key){
+  const L=PLAN_LEVELS[planLevel()];
+  return dayCount('eyes',key)>=L.eyes && dayCount('shoulder',key)>=L.shoulder;
+}
+function todayLeft(){
+  const L=PLAN_LEVELS[planLevel()];
+  return {sh:Math.max(0,L.shoulder-todayOf('shoulder').length), eyes:Math.max(0,L.eyes-todayOf('eyes').length)};
+}
+function leftText(){
+  const l=todayLeft(), parts=[];
+  if(l.sh) parts.push(plural(l.sh,'shoulder session'));
+  if(l.eyes) parts.push(plural(l.eyes,'eye break'));
+  return parts.join(' + ');
+}
+function hitsInLast(days){
+  let n=0;
+  for(let i=1;i<=days;i++) if(goalMetOn(addDays(todayStr(),-i))) n++;
+  return n;
+}
+function stepUpOffer(){
+  const p=DB.settings.plan;
+  if(p.level>=3 || daysBetween(p.since,todayStr())<STEP_UP_DAYS) return false;
+  if(p.snooze && p.snooze>todayStr()) return false;
+  return hitsInLast(STEP_UP_DAYS)>=STEP_UP_HITS;
+}
+function setPlanLevel(level){
+  const p=DB.settings.plan;
+  if(p.level===level) return;
+  p.level=level; p.since=todayStr(); p.snooze=null;
+  save(); mirrorReminderState();
+  toast(`${PLAN_LEVELS[level].name} plan: ${PLAN_LEVELS[level].desc.split(' · ')[0]}`);
+  renderHome();
+  if(!document.getElementById('view-settings').classList.contains('hidden')) renderSettings();
+}
+function snoozeStepUp(){
+  DB.settings.plan.snooze=addDays(todayStr(),7); save(); renderHome();
+}
+function savePlanTime(i,v){ DB.settings.plan.times[i]=+v; save(); mirrorReminderState() }
+function goalPills(done,goal,label){
+  return Array.from({length:goal},(_,i)=>`<div class="slot ${i<done?'done':''}"><b>${i<done?'✓ ':''}${label} ${goal>1?i+1:''}</b>${i<done?'done':'to do'}</div>`).join('');
 }
 
 /* =================================================================
@@ -1205,8 +1281,22 @@ function renderHome(){
   const eyesN=todayOf('eyes').length, shN=shoulderDoneSlots().size;
   const builds=DB.habits.filter(x=>x.kind==='build');
   const habitsPart = builds.length ? ` · ${builds.filter(x=>isMarked(x,todayStr())).length}/${builds.length} habits` : '';
-  document.getElementById('greet').textContent =
-    `${hello}. Today: ${eyesN} eye break${eyesN===1?'':'s'} · ${shN} of 3 shoulder sessions${habitsPart}.`;
+  if(isLight()){
+    const left=leftText();
+    document.getElementById('greet').textContent = left
+      ? `${hello}. Today's routine: ${left} left${habitsPart}.`
+      : `${hello}. Today's routine is done ✓${habitsPart}.`;
+  } else {
+    document.getElementById('greet').textContent =
+      `${hello}. Today: ${eyesN} eye break${eyesN===1?'':'s'} · ${shN} of 3 shoulder sessions${habitsPart}.`;
+  }
+  const offer=document.getElementById('plan-offer');
+  if(stepUpOffer()){
+    const next=PLAN_LEVELS[planLevel()+1];
+    offer.innerHTML=`<h3>You've built the habit 🌱</h3>You hit your daily routine on <b>${hitsInLast(STEP_UP_DAYS)} of the last ${STEP_UP_DAYS} days</b>. Ready for the next step — <b>${next.name}</b>: ${next.desc}?
+      <div class="hb-actions"><button class="mini" style="border-color:var(--acc);color:var(--acc2)" onclick="setPlanLevel(${planLevel()+1})">Step up</button><button class="mini" onclick="snoozeStepUp()">Not yet</button></div>`;
+    offer.classList.remove('hidden');
+  } else offer.classList.add('hidden');
   renderEyesCard();
   renderShoulderCard();
   renderHabitsCard();
@@ -1253,6 +1343,16 @@ function renderEyesCard(){
   document.getElementById('eyes-streak').textContent=calcStreak('eyes');
   const n=enabledExerciseIndexes().length;
   document.getElementById('eyes-start-sub').textContent=`${n} exercise${n>1?'s':''} · about ${n} minute${n>1?'s':''}`;
+  if(isLight()){
+    const goal=PLAN_LEVELS[planLevel()].eyes, done=todayOf('eyes').length;
+    document.getElementById('eyes-sub').textContent=`${plural(goal,'eye break')} a day · ${PLAN_LEVELS[planLevel()].name} plan`;
+    document.getElementById('hours').innerHTML=goalPills(done,goal,'Break');
+    const el=document.getElementById('eyes-status'), txt=document.getElementById('eyes-status-text');
+    el.classList.toggle('due', done<goal);
+    txt.textContent = done>=goal ? `Today's eye goal is done ✓${done>goal?` (${done} breaks — bonus!)`:''}` : `${plural(goal-done,'eye break')} to go today`;
+    return;
+  }
+  document.getElementById('eyes-sub').textContent='Hourly eye breaks while you work';
   const {whStart,whEnd}=DB.settings;
   const done=new Set(todayOf('eyes').map(s=>new Date(s.t).getHours()));
   const nowH=new Date().getHours();
@@ -1280,14 +1380,21 @@ function renderShoulderCard(){
   const done=shoulderDoneSlots();
   const times=DB.settings.shoulder.times;
   const now=new Date(), h=now.getHours(), cur=slotOf(h);
+  const el=document.getElementById('sh-status'), txt=document.getElementById('sh-status-text');
+  el.classList.remove('due');
+  const count=done.size;
+  if(isLight()){
+    const goal=PLAN_LEVELS[planLevel()].shoulder, n=todayOf('shoulder').length;
+    document.getElementById('sh-sub').textContent=`Left · ${plural(goal,'session')} a day · ${PLAN_LEVELS[planLevel()].name} plan`;
+    document.getElementById('sh-slots').innerHTML=goalPills(n,goal,'Session');
+    el.classList.toggle('due', n<goal);
+    txt.textContent = n>=goal ? 'Today\'s shoulder goal is done ✓ — showing up daily is what counts' : `${plural(goal-n,'session')} to go today · about 5 minutes each`;
+  } else {
+  document.getElementById('sh-sub').textContent='Left · 3 gentle sessions a day';
   document.getElementById('sh-slots').innerHTML = SLOTS.map((s,i)=>{
     const due = !done.has(i) && i===cur && h>=times[i];
     return `<div class="slot ${done.has(i)?'done':''} ${due?'due':''}"><b>${done.has(i)?'✓ ':''}${s.label}</b>${times[i]}:00</div>`;
   }).join('');
-
-  const el=document.getElementById('sh-status'), txt=document.getElementById('sh-status-text');
-  el.classList.remove('due');
-  const count=done.size;
   if(count===3){ txt.textContent='All 3 sessions done today — that consistency is what loosens a frozen shoulder'; }
   else if(!done.has(cur) && h>=times[cur]){ el.classList.add('due'); txt.textContent=`Your ${SLOTS[cur].label.toLowerCase()} session is due now`; }
   else {
@@ -1295,6 +1402,7 @@ function renderShoulderCard(){
     txt.innerHTML = next===undefined
       ? `<b>${count}</b> of 3 done today — tomorrow is a fresh start`
       : `<b>${count}</b> of 3 done · next: ${SLOTS[next].label.toLowerCase()} at ${times[next]}:00`;
+  }
   }
 
   const cs=checksSorted(), cta=document.getElementById('sh-check');
@@ -1402,9 +1510,9 @@ function openSheet(pid){
   }
   const body = pid==='eyes' ? `
     <div class="sheet-title">Dry Eye Care</div>
-    <div class="sheet-sub">One short break every working hour.</div>
+    <div class="sheet-sub">${isLight()?`Your ${PLAN_LEVELS[planLevel()].name} plan: ${plural(PLAN_LEVELS[planLevel()].eyes,'break')} a day.`:'One short break every working hour.'}</div>
     <div class="card" style="padding:8px 16px">${exerciseRows('eyes')}</div>
-    <div class="info"><h3>How often</h3>One break per working hour, about 1 minute per exercise. Turn exercises on or off in Settings to fit your break.</div>
+    <div class="info"><h3>How often</h3>${isLight()?`Start with ${plural(PLAN_LEVELS[planLevel()].eyes,'break')} a day and build from there — the full plan is one break per working hour.`:'One break per working hour.'} About 1 minute per exercise. Turn exercises on or off in Settings to fit your break.</div>
     <div class="info"><h3>Why these work</h3><ul>
       <li><b>Blink Reset</b> — close–squeeze–open blink training improved dry-eye symptoms and tear-film stability in clinical studies (Contact Lens &amp; Anterior Eye, 2020 and 2025).</li>
       <li><b>Far Gaze</b> — the 20-20-20 break recommended by the AOA and AAO.</li>
@@ -1413,7 +1521,7 @@ function openSheet(pid){
     <div class="info accent">With severe dry eye (a Schirmer score of 1–3), these exercises add to your prescribed drops and treatment — they never replace them. Show this routine to your eye doctor.</div>`
   : `
     <div class="sheet-title">Frozen Shoulder · Left</div>
-    <div class="sheet-sub">Three gentle exercises, three times a day.</div>
+    <div class="sheet-sub">Three gentle exercises${isLight()?` — your ${PLAN_LEVELS[planLevel()].name} plan: ${plural(PLAN_LEVELS[planLevel()].shoulder,'session')} a day. The full plan is three times a day; step up when the habit is steady.`:', three times a day.'}</div>
     <div class="card" style="padding:8px 16px">${exerciseRows('shoulder')}</div>
     <div class="info accent"><h3>The comfort rule</h3><ul>
       <li>Move to a <b>mild stretch</b>. Discomfort up to about <b>3 out of 10</b> is fine.</li>
@@ -1464,7 +1572,8 @@ async function mirrorReminderState(){
       tx.objectStore('state').put({
         remind:DB.settings.remind, whStart:DB.settings.whStart, whEnd:DB.settings.whEnd, today:todayStr(), doneHours,
         sRemind:DB.settings.shoulder.remind, sTimes:DB.settings.shoulder.times, sDoneSlots:[...shoulderDoneSlots()],
-        hRemind:DB.settings.habits.remind && DB.habits.length>0, hTime:DB.settings.habits.time, hTouched:DB.habitTouched===todayStr()
+        hRemind:DB.settings.habits.remind && DB.habits.length>0, hTime:DB.settings.habits.time, hTouched:DB.habitTouched===todayStr(),
+        level:planLevel(), pTimes:DB.settings.plan.times, pLeft:leftText()
       }, 'reminder');
       tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
     });
@@ -1546,11 +1655,27 @@ function tickHabits(now){
   chime(600,.3); setTimeout(()=>chime(800,.3),350);
   notify('Bloom — habit check-in','Take 10 seconds to log today\'s habits.','bloom-habits');
 }
+function tickPlan(now){
+  const today=todayStr(), times=DB.settings.plan.times, h=now.getHours();
+  const i = h>=times[1] ? 1 : h>=times[0] ? 0 : -1;
+  if(i<0 || DB.planReminded.includes(today+'-'+i)) return;
+  // opening the app late in the day sends one reminder, not a backlog of both
+  DB.planReminded = [...Array(i+1).keys()].map(k=>today+'-'+k);
+  save();
+  const left=leftText();
+  if(!left) return;
+  const mins = todayLeft().sh*5 + todayLeft().eyes*5;
+  const title = i===0 ? 'Bloom — today\'s routine' : 'Bloom — still to do today';
+  const body = `${left[0].toUpperCase()+left.slice(1)} · about ${mins} minutes.`;
+  toast(i===0 ? `🌿 Today's routine: ${left}` : `🌿 Still to do today: ${left}`);
+  chime(620,.3); setTimeout(()=>chime(830,.3),350);
+  notify(title, body, 'bloom-plan');
+}
 function tickReminder(){
   const now=new Date();
   document.getElementById('clock').textContent=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  tickEyes(now);
-  tickShoulder(now);
+  if(isLight()) tickPlan(now);
+  else { tickEyes(now); tickShoulder(now) }
   tickHabits(now);
   if(!document.getElementById('view-home').classList.contains('hidden')) renderHome();
   mirrorReminderState();
@@ -1566,7 +1691,7 @@ let lastNudgeReset=Date.now();
 function tickNudge(){
   const playerOpen=!document.getElementById('player').classList.contains('hidden');
   const nudgeOpen=!document.getElementById('nudge').classList.contains('hidden');
-  if(playerOpen||nudgeOpen) return;
+  if(playerOpen||nudgeOpen||isLight()) return;
   if(Date.now()-lastNudgeReset>=NUDGE_MS){
     document.getElementById('nudge').classList.remove('hidden');
     chime(660,.3); setTimeout(()=>chime(880,.3),350);
@@ -1900,7 +2025,10 @@ function renderProgress(){
   document.getElementById('st-best').textContent=Math.max(calcBest(pid),streak);
   document.getElementById('st-total').textContent=sessionsOf(pid).length;
   document.getElementById('st-total-k').textContent=pid==='eyes'?'total breaks':'total sessions';
-  document.getElementById('cal-note').textContent = pid==='eyes'
+  const goal = isLight() ? PLAN_LEVELS[planLevel()][pid] : null;
+  document.getElementById('cal-note').textContent = goal
+    ? `Deepest shade = a day you hit your ${PLAN_LEVELS[planLevel()].name} goal (${plural(goal, pid==='eyes'?'break':'session')}).`
+    : pid==='eyes'
     ? 'Shade deepens with more breaks in a day. 4+ breaks = deepest.'
     : 'Shade deepens as you cover morning, afternoon and evening. All 3 = deepest.';
 
@@ -1915,7 +2043,8 @@ function renderProgress(){
   for(let i=0;i<lead;i++) html+='<div></div>';
   for(let d=1;d<=days;d++){
     const k=dkey(new Date(y,m,d)), c=counts[k]||0;
-    const lvl = pid==='eyes' ? (c>=4?3:c>=2?2:c>=1?1:0) : (slotsByDay[k]?.size||0);
+    const lvl = goal ? (c>=goal?3:c?1:0)
+      : pid==='eyes' ? (c>=4?3:c>=2?2:c>=1?1:0) : (slotsByDay[k]?.size||0);
     html+=`<div class="d ${lvl?'lvl'+lvl:''} ${k===todayStr()?'today':''}"><span class="n">${d}</span>${c?`<span>${c}</span>`:''}</div>`;
   }
   document.getElementById('cal').innerHTML=html;
@@ -1936,6 +2065,19 @@ function renderProgress(){
    SETTINGS
    ================================================================= */
 function renderSettings(){
+  const lv=planLevel();
+  document.getElementById('plan-levels').innerHTML = [1,2,3].map(n=>`
+    <button class="feel-btn" style="${n===lv?'border-color:var(--acc);background:var(--accbg)':''}" onclick="setPlanLevel(${n})">
+      <span class="e">${n===lv?'●':'○'}</span><div><b>${PLAN_LEVELS[n].name}${n===1?' — start here':''}</b><span>${PLAN_LEVELS[n].desc}</span></div></button>`).join('');
+  document.getElementById('plan-times').classList.toggle('hidden', lv===3);
+  for(const [i,lo,hi] of [[0,5,12],[1,13,22]]){
+    const sel=document.getElementById('plan-t'+i);
+    if(!sel.options.length) for(let h=lo;h<=hi;h++) sel.add(new Option(h+':00',h));
+    sel.value=DB.settings.plan.times[i];
+  }
+  document.getElementById('plan-note').textContent = lv<3
+    ? `Two reminders a day. The hourly eye and shoulder time-slot reminders below only apply on the Full plan. After ${STEP_UP_DAYS} days of steady practice, Bloom will offer the next step — you decide.`
+    : 'Full plan: hourly eye-break reminders during working hours, plus the three shoulder session times below.';
   document.getElementById('ex-toggle-list').innerHTML = EYE_EXERCISES.map(e=>`
     <div class="set-row">
       <div><div class="lbl">${e.icon} ${e.name}</div><div class="hint">${e.tag}</div></div>
