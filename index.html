@@ -592,23 +592,23 @@
 const EYE_EXERCISES = [
   {
     id:'blink', icon:'👁️', name:'Blink Reset',
-    tag:'For dry eyes — restores the tear film',
+    tag:'Most important — complete blinks restore the tear film',
     ready:[
       'Sit comfortably and lower your shoulders.',
-      'You will close your eyes gently for 2 seconds, squeeze the lids for 2 seconds, then open for 2 seconds.',
-      'Squeeze softly — cheeks relaxed, no frowning. 10 rounds.'
+      'Close your eyes fully for 2 seconds, gently tighten the lids for about 1 second, then relax and open for 2 seconds.',
+      'Very gentle: the lids just meet firmly. No pressure on the eyeball, no frowning or facial tension. 10 rounds.'
     ],
     visual:'eye',
     build(){
       const p=[];
       for(let i=1;i<=10;i++){
         p.push({t:2,word:'Close',say:'Close',eye:'closed',count:`round ${i} of 10`});
-        p.push({t:2,word:'Squeeze',say:'Squeeze',eye:'squeeze',count:`round ${i} of 10`});
-        p.push({t:2,word:'Open',say:'Open',eye:'open',count:`round ${i} of 10`});
+        p.push({t:1,word:'Gently tighten',say:'Gently',eye:'squeeze',count:`round ${i} of 10`});
+        p.push({t:2,word:'Relax & open',say:'Open',eye:'open',count:`round ${i} of 10`});
       }
       return p;
     },
-    instruction:'Close softly · squeeze gently · open wide. Let each blink spread fresh tears across the eye.'
+    instruction:'Close fully · tighten gently · open relaxed. Let each blink spread fresh tears across the eye.'
   },
   {
     id:'distance', icon:'🏔️', name:'Far Gaze 20·20',
@@ -627,8 +627,25 @@ const EYE_EXERCISES = [
     instruction:'Pick the farthest thing you can see. Let the eyes soften — distance is rest for the focusing muscle.'
   },
   {
-    id:'nearfar', icon:'🔭', name:'Near–Far Focus',
-    tag:'For tired eyes — trains flexible focusing',
+    id:'palming', icon:'🤲', name:'Warm Palming',
+    tag:'Rest — darkness and warmth for sore, light-sensitive eyes',
+    ready:[
+      'Rub your palms together for a few seconds until they feel warm.',
+      'Cup them over your closed eyes — no pressure on the eyeballs, just gentle darkness.',
+      'Rest for 60 seconds and breathe slowly. Voice and chimes will tell you when it ends.'
+    ],
+    visual:'breath',
+    build(){
+      return [
+        {t:30,word:'Rest in darkness',say:'Cup your warm palms over closed eyes. Breathe in slowly… and out.',count:'halfway chime will sound'},
+        {t:30,word:'Stay… breathe',say:'Halfway. Stay in the dark and keep breathing slowly.',count:'almost done'}
+      ];
+    },
+    instruction:'Elbows on the desk if that\'s comfortable. Total darkness, slow breath, zero effort.'
+  },
+  {
+    id:'nearfar', icon:'🔭', name:'Near–Far Focus', optional:true,
+    tag:'Optional — only if a specialist finds a focusing problem',
     ready:[
       'Hold your thumb about 25 cm (10 in) from your nose.',
       'Choose a clear object 3+ metres away, roughly behind your thumb.',
@@ -646,8 +663,8 @@ const EYE_EXERCISES = [
     instruction:'Wait until each target is perfectly sharp before switching. Keep breathing; keep blinking.'
   },
   {
-    id:'converge', icon:'🎯', name:'Smooth Convergence',
-    tag:'For the tired-eye squint — steadies eye teaming',
+    id:'converge', icon:'🎯', name:'Smooth Convergence', optional:true,
+    tag:'Optional — only if a specialist finds convergence insufficiency',
     ready:[
       'Hold your thumb at arm\'s length at eye level. Keep it single and sharp.',
       'You will bring it slowly toward your nose over 5 seconds, stopping if it doubles, then move it slowly back out.',
@@ -663,23 +680,6 @@ const EYE_EXERCISES = [
       return p;
     },
     instruction:'Keep the thumb as one image. The moment it doubles, pause there, then ease back out.'
-  },
-  {
-    id:'palming', icon:'🤲', name:'Warm Palming',
-    tag:'Deep rest — darkness and warmth for sore eyes',
-    ready:[
-      'Rub your palms together for a few seconds until they feel warm.',
-      'Cup them over your closed eyes — no pressure on the eyeballs, just gentle darkness.',
-      'Rest for 60 seconds and breathe slowly. Voice and chimes will tell you when it ends.'
-    ],
-    visual:'breath',
-    build(){
-      return [
-        {t:30,word:'Rest in darkness',say:'Cup your warm palms over closed eyes. Breathe in slowly… and out.',count:'halfway chime will sound'},
-        {t:30,word:'Stay… breathe',say:'Halfway. Stay in the dark and keep breathing slowly.',count:'almost done'}
-      ];
-    },
-    instruction:'Elbows on the desk if that\'s comfortable. Total darkness, slow breath, zero effort.'
   }
 ];
 
@@ -689,7 +689,8 @@ const EYE_EXERCISES = [
    inside a comfortable range, because pain-limited exercise beat
    intensive stretching past the pain threshold (Diercks & Stevens 2004).
    ================================================================= */
-const SHOULDER_RULE = 'Stay in the comfortable zone: a mild stretch, or discomfort up to 3 out of 10, is fine. Never push into sharp pain. Any ache should settle within about 30 minutes.';
+const EYE_RULE = 'Exercises should leave your eyes the same or better. Stop if one eye gets more strained, painful or blurry, or if you see double.';
+const SHOULDER_RULE ='Stay in the comfortable zone: a mild stretch, or discomfort up to 3 out of 10, is fine. Never push into sharp pain. Any ache should settle within about 30 minutes.';
 
 const SHOULDER_EXERCISES = [
   {
@@ -778,7 +779,11 @@ const SETTINGS_DEFAULT = {remind:true, sound:true, voice:true, notify:false, whS
 const DB = Object.assign({sessions:[], lastReminderHour:null, lastShoulderReminder:null,
   habits:[], habitLog:{}, habitTouched:null, lastHabitReminder:null, shoulderChecks:[]}, load());
 DB.settings = Object.assign({}, SETTINGS_DEFAULT, DB.settings);
-DB.settings.enabled = Object.assign(Object.fromEntries(EYE_EXERCISES.map(e=>[e.id,true])), DB.settings.enabled);
+DB.settings.enabled = Object.assign(Object.fromEntries(EYE_EXERCISES.map(e=>[e.id,!e.optional])), DB.settings.enabled);
+if(!DB.settings.eyeRoutineV2){ // one-time: switch the optional drills off for existing users too
+  for(const e of EYE_EXERCISES) if(e.optional) DB.settings.enabled[e.id]=false;
+  DB.settings.eyeRoutineV2=true;
+}
 DB.settings.shoulder = Object.assign({}, SETTINGS_DEFAULT.shoulder, DB.settings.shoulder);
 DB.settings.habits = Object.assign({}, SETTINGS_DEFAULT.habits, DB.settings.habits);
 DB.settings.plan = Object.assign({level:1, since:null, times:[9,18], snooze:null}, DB.settings.plan);
@@ -1513,12 +1518,17 @@ function openSheet(pid){
     <div class="sheet-sub">${isLight()?`Your ${PLAN_LEVELS[planLevel()].name} plan: ${plural(PLAN_LEVELS[planLevel()].eyes,'break')} a day.`:'One short break every working hour.'}</div>
     <div class="card" style="padding:8px 16px">${exerciseRows('eyes')}</div>
     <div class="info"><h3>How often</h3>${isLight()?`Start with ${plural(PLAN_LEVELS[planLevel()].eyes,'break')} a day and build from there — the full plan is one break per working hour.`:'One break per working hour.'} About 1 minute per exercise. Turn exercises on or off in Settings to fit your break.</div>
-    <div class="info"><h3>Why these work</h3><ul>
-      <li><b>Blink Reset</b> — close–squeeze–open blink training improved dry-eye symptoms and tear-film stability in clinical studies (Contact Lens &amp; Anterior Eye, 2020 and 2025).</li>
-      <li><b>Far Gaze</b> — the 20-20-20 break recommended by the AOA and AAO.</li>
-      <li><b>Near–Far Focus</b> and <b>Smooth Convergence</b> — standard optometric drills for focusing and eye-teaming fatigue.</li>
-      <li><b>Warm Palming</b> — rest and warmth, which supports the eyelid oil glands.</li></ul></div>
-    <div class="info accent">With severe dry eye (a Schirmer score of 1–3), these exercises add to your prescribed drops and treatment — they never replace them. Show this routine to your eye doctor.</div>`
+    <div class="info accent"><h3>Comfort rule</h3>${EYE_RULE}</div>
+    <div class="info"><h3>In priority order</h3><ul>
+      <li><b>1. Blink Reset</b> — the best-supported exercise for dry eye. Complete-blink training improved symptoms and tear-film stability in clinical studies (Contact Lens &amp; Anterior Eye, 2020 and 2025). Keep the squeeze gentle.</li>
+      <li><b>2. Far Gaze</b> — the 20-20-20 break (AOA / AAO). A rest for the eyes, especially during laptop work.</li>
+      <li><b>3. Warm Palming</b> — darkness and warmth for sore, light-sensitive eyes. Comfort, not a cure; never press on the eyes.</li></ul></div>
+    <div class="info"><h3>Why two exercises are off</h3><b>Near–Far Focus</b> and <b>Smooth Convergence</b> treat focusing and eye-teaming problems — conditions that need to be diagnosed first. Your left-eye strain is worse with bright light and TV and eased by dark glasses, which points to the eye surface and light sensitivity rather than a weak eye muscle. Switch them back on in Settings only if a specialist finds a convergence or focusing problem.</div>
+    <div class="info"><h3>Ask your eye specialist</h3><ul>
+      <li>Eye alignment tests: cover test, near point of convergence, fusional vergence, focusing (accommodation).</li>
+      <li>Blood tests for Sjögren's syndrome (ANA, anti-Ro, anti-La) and thyroid (TSH), given severe dry eye.</li>
+      <li>Whether the eyelid oil glands are blocked — if so, a daily 10-minute warm compress may help.</li></ul></div>
+    <div class="info accent">With severe dry eye (very low Schirmer scores), these exercises add to your prescribed drops and treatment — they never replace them. Show this routine to your eye doctor.</div>`
   : `
     <div class="sheet-title">Frozen Shoulder · Left</div>
     <div class="sheet-sub">Three gentle exercises${isLight()?` — your ${PLAN_LEVELS[planLevel()].name} plan: ${plural(PLAN_LEVELS[planLevel()].shoulder,'session')} a day. The full plan is three times a day; step up when the habit is steady.`:', three times a day.'}</div>
@@ -1726,11 +1736,11 @@ function loadExercise(){
   document.getElementById('running').classList.add('hidden');
   document.getElementById('ready').classList.remove('hidden');
   document.getElementById('ready-steps').innerHTML=ex.ready.map(s=>`<li>${s}</li>`).join('');
+  const ruleText = prog.id==='shoulder' ? SHOULDER_RULE : EYE_RULE;
   const rule=document.getElementById('ready-rule');
-  const isShoulder=prog.id==='shoulder';
-  rule.classList.toggle('hidden',!isShoulder);
-  if(isShoulder) rule.innerHTML='<b>Comfort rule:</b> '+SHOULDER_RULE;
-  const intro = (isShoulder && qi===0) ? 'Before we start. '+SHOULDER_RULE+' ' : '';
+  rule.classList.remove('hidden');
+  rule.innerHTML='<b>Comfort rule:</b> '+ruleText;
+  const intro = qi===0 ? 'Before we start. '+ruleText+' ' : '';
   speak(intro+ex.name+'. '+ex.ready.join(' ')+' Press start when you are ready.');
 }
 function beginExercise(){

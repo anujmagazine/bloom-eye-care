@@ -16,13 +16,19 @@ every working hour). You choose when to step up — or switch any time in Settin
 
 ### 1. Dry Eye Care — one short break every working hour
 
+In priority order. The default break is the first three (about 3 minutes); the last two are **off by default**.
+Turn them on in Settings only if a specialist diagnoses a focusing or convergence problem.
+
 | Exercise | Targets | Evidence |
 |---|---|---|
-| **Blink Reset** — 10 × close (2s) → squeeze (2s) → open (2s) | Tear film, incomplete blinks | Blink-training trials, *Contact Lens & Anterior Eye* (2020, 2025) |
-| **Far Gaze 20·20** — 3 × 20s looking 20 ft away | Focusing strain | 20-20-20 rule (AOA / AAO) |
-| **Near–Far Focus** — 10 switches, thumb ↔ distant object | Accommodative fatigue | Standard optometric drill |
-| **Smooth Convergence** — 6 slow thumb push-ups | Eye-teaming fatigue | Home pencil push-up studies |
-| **Warm Palming** — 60s of warm darkness | Rest, oil-gland comfort | Classic rest technique |
+| **1. Blink Reset** — 10 × close (2s) → gently tighten (1s) → open (2s) | Tear film, incomplete blinks | Blink-training trials, *Contact Lens & Anterior Eye* (2020, 2025) |
+| **2. Far Gaze 20·20** — 3 × 20s looking 20 ft away | Visual rest during screen work | 20-20-20 rule (AOA / AAO) |
+| **3. Warm Palming** — 60s of warm darkness | Rest for sore, light-sensitive eyes | Comfort technique |
+| *Near–Far Focus (off)* — 10 switches, thumb ↔ distant object | Diagnosed accommodative problems | Standard optometric drill |
+| *Smooth Convergence (off)* — 6 slow thumb push-ups | Diagnosed convergence insufficiency | Pencil push-up studies |
+
+Every eye break starts with a comfort rule: exercises should leave the eyes the same or better. Stop if one eye
+becomes more strained, painful or blurry, or you see double.
 
 ### 2. Frozen Shoulder (left) — three ~5-minute sessions a day: morning, afternoon, evening
 
